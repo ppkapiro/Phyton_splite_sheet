@@ -1,0 +1,5 @@
+2025-03-07 18:21:10 - INFO - main - Usuario creado exitosamente: testuser
+2025-03-07 18:21:10 - INFO - main - Usuario creado exitosamente: testuser
+2025-03-07 18:21:10 - INFO - main - Login exitoso para usuario: testuser
+2025-03-07 18:21:11 - INFO - main - Usuario creado exitosamente: testuser
+2025-03-07 18:21:11 - INFO - main - Login exitoso para usuario: testuser
