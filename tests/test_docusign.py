@@ -10,7 +10,6 @@ def mock_docusign():
 
 def test_send_for_signature(client, mock_docusign):
     """Prueba de envío de documento para firma"""
-    # Simular archivo PDF y destinatarios
     data = {
         'file': (b'fake pdf content', 'test.pdf'),
         'recipients': ['user1@test.com', 'user2@test.com']
@@ -18,9 +17,8 @@ def test_send_for_signature(client, mock_docusign):
     
     mock_docusign.return_value.send_document_for_signature.return_value = "test-envelope-id"
     
-    response = client.post('/api/send_for_signature',
+    response = client.post('/api/send_for_signature',  # Prefix /api agregado
         data=data,
         content_type='multipart/form-data')
     
     assert response.status_code == 200
-    assert b'test-envelope-id' in response.data

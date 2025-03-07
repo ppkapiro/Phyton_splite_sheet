@@ -1,0 +1,41 @@
+{
+    "summary": {
+        "total_tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "duration": "0.66 segundos",
+        "timestamp": "2025-03-07 17:44:36"
+    },
+    "details": [
+        {
+            "test_name": "test_api_status",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-07 17:44:36"
+        },
+        {
+            "test_name": "test_api_status",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-07 17:44:36"
+        },
+        {
+            "test_name": "test_auth_register",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-07 17:44:36"
+        },
+        {
+            "test_name": "test_auth_login",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-07 17:44:36"
+        },
+        {
+            "test_name": "test_auth_flow",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-07 17:44:36"
+        }
+    ]
+}

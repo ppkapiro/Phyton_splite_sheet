@@ -4,13 +4,25 @@ from sqlalchemy.exc import SQLAlchemyError
 db = SQLAlchemy()
 
 def init_db(app):
+    """Inicializar la base de datos"""
     db.init_app(app)
+    
     with app.app_context():
         try:
             db.create_all()
         except SQLAlchemyError as e:
             app.logger.error(f"Error inicializando la base de datos: {str(e)}")
             raise
+
+def reset_db():
+    """Limpiar todas las tablas"""
+    for table in reversed(db.metadata.sorted_tables):
+        try:
+            db.session.execute(table.delete())
+        except:
+            db.session.rollback()
+            raise
+    db.session.commit()
 
 def add_user(username: str, password: str):
     from .user import User

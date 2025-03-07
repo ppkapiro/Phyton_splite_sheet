@@ -4,9 +4,8 @@ from flask_jwt_extended import JWTManager
 from config import Config
 from models.database import init_db
 import os
-import importlib
-import pkgutil
 
+# Crear e inicializar la aplicación Flask
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
@@ -15,20 +14,27 @@ jwt = JWTManager(app)
 # Inicializar la base de datos
 init_db(app)
 
+# IMPORTANTE: Registrar blueprints después de crear la app
+# Importar blueprints - el orden es importante
+from routes.base import bp as base_bp
+from routes.api import bp as api_bp
+
+# Registrar blueprint base
+app.register_blueprint(base_bp)
+
+# Registrar blueprint api con prefijo /api para todos sus endpoints
+app.register_blueprint(api_bp, url_prefix='/api')
+
+if app.debug:
+    # Imprimir rutas registradas para verificación
+    print("\nEndpoints disponibles:")
+    for rule in app.url_map.iter_rules():
+        print(f"{rule.methods} {rule.rule} -> {rule.endpoint}")
+
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
     from services.auth_service import AuthService
     return AuthService.is_token_blacklisted(jwt_payload["jti"])
-
-# Registrar automáticamente todos los blueprints en la carpeta routes
-def register_blueprints():
-    import routes
-    for _, name, _ in pkgutil.iter_modules(routes.__path__):
-        module = importlib.import_module(f'routes.{name}')
-        if hasattr(module, 'bp'):
-            app.register_blueprint(module.bp)
-
-register_blueprints()
 
 # Manejador de error 404
 @app.errorhandler(404)

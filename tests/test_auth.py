@@ -4,6 +4,7 @@ from services.auth_service import AuthService
 
 def test_register(client):
     """Prueba de registro de usuario"""
+    # Usar prefijo /api en la ruta
     response = client.post('/api/register',
         json={'username': 'testuser', 'password': 'testpass'})
     assert response.status_code == 201
@@ -11,11 +12,10 @@ def test_register(client):
 
 def test_login_success(client):
     """Prueba de login exitoso"""
-    # Registrar usuario primero
+    # Usar prefijo /api en ambas rutas
     client.post('/api/register',
         json={'username': 'testuser', 'password': 'testpass'})
     
-    # Intentar login
     response = client.post('/api/login',
         json={'username': 'testuser', 'password': 'testpass'})
     assert response.status_code == 200
@@ -25,6 +25,6 @@ def test_login_success(client):
 
 def test_protected_route(client):
     """Prueba de ruta protegida"""
-    # Intentar acceder sin token
+    # Usar prefijo /api para ruta protegida
     response = client.post('/api/generate_pdf')
     assert response.status_code == 401

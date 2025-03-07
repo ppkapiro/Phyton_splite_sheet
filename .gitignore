@@ -1,0 +1,43 @@
+# Configuración y claves
+config.py
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# Environments
+.env
+.env.*
+.venv/
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.hypothesis/
+
+# Logs
+*.log
+logs/
+test_*.log
