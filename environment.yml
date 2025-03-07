@@ -1,0 +1,37 @@
+name: splitsheet
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core Python y dependencias base
+  - python=3.9
+  - setuptools
+  - pip
+  - wheel
+  
+  # Framework y extensiones
+  - flask>=2.0.1
+  - flask-cors>=3.0.10
+  - flask-sqlalchemy>=2.5.1
+  - sqlalchemy>=1.4.31
+  
+  # Utilidades y herramientas
+  - python-dotenv
+  - requests>=2.27.1
+  - cryptography>=36.0.1
+  - pylance
+  - pyang
+  - libyang
+  - pyangbind
+  - ncclient
+  
+  # Testing
+  - pytest>=7.0.1
+  - black
+  - flake8
+  
+  - pip:
+    - flask-jwt-extended>=4.3.1
+    - docusign-esign>=3.17.0
+    - pytest-cov>=3.0.0
+    - pre-commit>=2.19.0

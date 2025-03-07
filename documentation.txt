@@ -1,0 +1,59 @@
+DOCUMENTACIÓN DEL PROYECTO
+Generado: 2025-03-07 13:12:07
+
+1. INFORMACIÓN GENERAL
+----------------------
+Nombre del proyecto: Backend_API_Flask_Python
+Ubicación: C:\Users\pepec\Projects\Split_Sheet\Backend_API_Flask_Python
+Versión de Python: 3.9
+
+2. ESTRUCTURA DEL PROYECTO
+--------------------------
+Backend_API_Flask_Python/
+├── src/         - Código fuente principal
+├── config/      - Configuraciones globales
+├── tests/       - Pruebas unitarias e integración
+└── docs/        - Documentación del proyecto
+
+3. CONFIGURACIÓN DEL ENTORNO
+----------------------------
+1. Crear y activar el entorno Conda:
+   conda env create -f environment.yml
+   conda activate Backend_API_Flask_Python
+
+2. Instalar dependencias adicionales:
+   pip install -r requirements.txt
+
+3. Configurar herramientas de desarrollo:
+   pre-commit install
+
+4. CONTROL DE VERSIONES
+-----------------------
+- Repositorio Git inicializado
+- Archivo .gitignore configurado
+- Hooks de pre-commit instalados para:
+  * Black (formateo de código)
+  * Flake8 (análisis estático)
+  * isort (ordenamiento de imports)
+
+5. HERRAMIENTAS DE CALIDAD
+--------------------------
+- Black: Formateo automático de código
+  * Configurado en pyproject.toml
+  * Longitud máxima de línea: 88 caracteres
+
+- Flake8: Análisis estático de código
+  * Configurado en .flake8
+  * Integrado con docstring checks
+
+- pytest: Framework de pruebas
+  * Directorio de pruebas: ./tests
+  * Configuración en pyproject.toml
+
+6. SIGUIENTES PASOS
+-------------------
+1. Revise la documentación en docs/
+2. Configure su editor (VSCode/PyCharm)
+3. Active el entorno virtual
+4. Instale las dependencias
+5. Ejecute las pruebas iniciales
