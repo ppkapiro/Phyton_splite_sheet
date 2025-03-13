@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app, send_file
+from flask import Blueprint, jsonify, request, current_app, send_file, session, redirect
 from flask_jwt_extended import (
     jwt_required, create_access_token, 
     create_refresh_token, get_jwt_identity,
@@ -6,10 +6,12 @@ from flask_jwt_extended import (
 )
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
-from models.database import db, add_user, get_user
+from models.database import db, add_user, get_user, get_document, get_document_by_envelope
+from models import Document
+from services.docusign_hmac import DocuSignHMACValidator
 from services.docusign_service import DocuSignService
 from services.auth_service import AuthService
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import time
 from src.register_schema import RegisterSchema
@@ -21,6 +23,13 @@ from src.delete_document_schema import DeleteDocumentSchema
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import os
+import requests
+from dotenv import load_dotenv
+from services.docusign_pkce import DocuSignPKCE
+
+# Cargar variables de entorno
+load_dotenv()
 
 bp = Blueprint('api', __name__)
 
@@ -74,27 +83,28 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 def login():
-    """
-    Endpoint para autenticación de usuarios con validación Marshmallow.
-    """
+    """Endpoint para autenticación de usuarios con validación Marshmallow"""
     try:
-        # 1. Validar datos de entrada usando Marshmallow
+        # Validar formato de datos usando Marshmallow
         schema = LoginSchema()
         try:
-            data = schema.load(request.get_json())
+            data = schema.load(request.get_json() or {})
         except ValidationError as err:
-            return jsonify(err.messages), 400
+            return jsonify({
+                "error": "Datos inválidos",
+                "details": err.messages
+            }), 400
 
         username = data['username']
         password = data['password']
 
-        # 2. Buscar usuario y verificar credenciales
+        # Verificar credenciales
         user = get_user(username)
         if not user or not user.check_password(password):
             current_app.logger.warning(f"Intento de login fallido para usuario: {username}")
             return jsonify({
                 "error": "Credenciales inválidas"
-            }), 401
+            }), 401  # Cambiar a 401 para credenciales incorrectas
 
         # 3. Generar tokens JWT
         access_token = create_access_token(identity=username)
@@ -279,40 +289,39 @@ def generate_pdf():
 
 @bp.route('/send_for_signature', methods=['POST'])
 def send_for_signature():
-    """
-    Endpoint para envío de documentos a firma.
-    Implementa validación mediante Marshmallow.
-    """
+    """Endpoint para envío de documentos a firma"""
     try:
-        # 1. Validar datos de entrada usando Marshmallow
+        # Validar datos de entrada usando el schema
         schema = SendSignatureSchema()
         try:
-            data = schema.load(request.get_json())
+            data = schema.load(request.get_json() or {})
         except ValidationError as err:
-            return jsonify(err.messages), 400
+            return jsonify({
+                "error": "Error de validación",
+                "details": err.messages
+            }), 400
 
-        # 2. Simular envío a DocuSign (placeholder)
-        envelope_id = f"test_123_{data['document_id']}"
+        # Usar factory method para crear instancia
+        docusign_service = DocuSignService.create_instance()
+        result = docusign_service.send_document_for_signature(
+            document_id=data['document_id'],
+            recipients=[{
+                'email': data['recipient_email'],
+                'name': data['recipient_name']
+            }]
+        )
 
-        # 3. Retornar respuesta exitosa
         return jsonify({
             "status": "success",
-            "message": "Firma enviada",
-            "data": {
-                "envelope_id": envelope_id,
-                "document_id": data['document_id'],
-                "recipient": {
-                    "email": data['recipient_email'],
-                    "name": data['recipient_name']
-                }
-            }
+            "message": "Documento enviado para firma",
+            "data": result
         }), 200
 
     except Exception as e:
         current_app.logger.error(f"Error en envío para firma: {str(e)}")
         return jsonify({
-            "error": "Error interno del servidor",
-            "details": "Por favor intente más tarde"
+            "error": "Error en el servicio",
+            "details": str(e)
         }), 500
 
 @bp.route('/signature_status/<envelope_id>', methods=['GET'])
@@ -525,6 +534,178 @@ def delete_document():
         return jsonify({
             "error": "Error interno del servidor",
             "details": "Por favor intente más tarde"
+        }), 500
+
+@bp.route('/auth/docusign')
+def docusign_auth():
+    """Inicia el flujo de autenticación OAuth 2.0 con PKCE"""
+    try:
+        # Asegurar sesión limpia
+        DocuSignPKCE.clear_session_verifier()
+        
+        # Generar nuevo par PKCE
+        _, code_challenge = DocuSignPKCE.generate_pkce_pair()
+        
+        # Verificar almacenamiento exitoso
+        if 'code_verifier' not in session:
+            raise ValueError("Error al almacenar code_verifier en sesión")
+        
+        # Obtener y validar timestamp
+        timestamp = session.get('code_verifier_timestamp')
+        if not timestamp:
+            raise ValueError("Error al almacenar timestamp en sesión")
+        
+        # Construir URL de autorización
+        auth_url = DocuSignPKCE.get_authorization_url(
+            client_id=current_app.config['DOCUSIGN_INTEGRATION_KEY'],
+            redirect_uri=current_app.config['DOCUSIGN_REDIRECT_URI'],
+            code_challenge=code_challenge
+        )
+        
+        current_app.logger.info(
+            f"Iniciando autenticación DocuSign - Verifier expira en "
+            f"{DocuSignPKCE.VERIFIER_EXPIRATION} segundos"
+        )
+        return redirect(auth_url)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error iniciando autenticación: {str(e)}")
+        DocuSignPKCE.clear_session_verifier()
+        return jsonify({
+            "error": "Error iniciando autenticación",
+            "details": str(e)
+        }), 500
+
+@bp.route('/callback')
+def docusign_callback():
+    """Maneja el callback de DocuSign con PKCE"""
+    try:
+        # 1. Verificar código de autorización
+        auth_code = request.args.get('code')
+        if not auth_code:
+            current_app.logger.error(
+                "Callback sin código - Query params: %s",
+                dict(request.args)
+            )
+            return jsonify({
+                "error": "No se recibió el código de autorización",
+                "details": "Verifique la configuración de DocuSign"
+            }), 400
+
+        # 2. Validar code_verifier
+        is_valid, error = DocuSignPKCE.validate_verifier()
+        if not is_valid:
+            current_app.logger.error(f"Error con code_verifier: {error}")
+            return jsonify({
+                "error": error,
+                "details": "Por favor, inicie el proceso de autenticación nuevamente"
+            }), 400
+
+        # 3. Intercambiar código por token
+        try:
+            code_verifier = session.get('code_verifier')
+            token_response = exchange_code_for_token(
+                auth_code=auth_code,
+                code_verifier=code_verifier,
+                redirect_uri=current_app.config['DOCUSIGN_REDIRECT_URI']
+            )
+            
+            # 4. Limpiar code_verifier de la sesión
+            DocuSignPKCE.clear_session_verifier()
+            
+            return jsonify({
+                "status": "success",
+                "message": "Autenticación DocuSign exitosa",
+                "data": token_response
+            }), 200
+            
+        except Exception as e:
+            current_app.logger.error(f"Error en intercambio de token: {str(e)}")
+            return jsonify({
+                "error": "Error obteniendo token",
+                "details": str(e)
+            }), 500
+
+    except Exception as e:
+        current_app.logger.error(f"Error en callback: {str(e)}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "details": str(e)
+        }), 500
+
+def exchange_code_for_token(auth_code: str, code_verifier: str, redirect_uri: str) -> dict:
+    """Intercambia el código de autorización por tokens"""
+    token_url = f"https://{current_app.config['DOCUSIGN_AUTH_SERVER']}/oauth/token"
+    
+    data = {
+        "grant_type": "authorization_code",
+        "code": auth_code,
+        "client_id": current_app.config['DOCUSIGN_INTEGRATION_KEY'],
+        "client_secret": current_app.config['DOCUSIGN_CLIENT_SECRET'],
+        "redirect_uri": redirect_uri,
+        "code_verifier": code_verifier
+    }
+    
+    response = requests.post(token_url, data=data)
+    
+    if response.status_code != 200:
+        raise ValueError(f"Error en token endpoint: {response.text}")
+        
+    return response.json()
+
+@bp.route('/docusign/webhook', methods=['POST'])
+def update_document_status(envelope_id, status):
+    """Update document status in database."""
+    try:
+        document = Document.query.filter_by(envelope_id=envelope_id).first()
+        if document:
+            document.status = status
+            db.session.commit()
+            current_app.logger.info(f"Document status updated: {envelope_id} -> {status}")
+    except Exception as e:
+        current_app.logger.error(f"Error updating document status: {str(e)}")
+        raise
+
+def docusign_webhook():
+    """
+    Endpoint para recibir webhooks de DocuSign.
+    Implementa validación HMAC obligatoria para asegurar autenticidad.
+    """
+    try:
+        # Validar firma HMAC (abortará con 403 si es inválida)
+        validator = DocuSignHMACValidator()
+        validator.validate_or_abort(request)
+        
+        # Procesar evento
+        event_data = request.get_json()
+        event_type = event_data.get('event')
+        envelope_id = event_data.get('envelopeId')
+        
+        current_app.logger.info(
+            f"Webhook autenticado recibido - Tipo: {event_type}, "
+            f"Envelope: {envelope_id}"
+        )
+
+        # Procesar según tipo de evento
+        if event_type in current_app.config['DOCUSIGN_WEBHOOK_EVENTS']:
+            status = event_type.replace('envelope-', '')
+            update_document_status(envelope_id, status)
+            
+            return jsonify({
+                "status": "success",
+                "message": f"Evento {event_type} procesado correctamente"
+            }), 200
+        else:
+            return jsonify({
+                "status": "ignored",
+                "message": f"Evento {event_type} no procesado"
+            }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Error procesando webhook: {str(e)}")
+        return jsonify({
+            "error": "Error procesando webhook",
+            "details": str(e)
         }), 500
 
 # Error handlers

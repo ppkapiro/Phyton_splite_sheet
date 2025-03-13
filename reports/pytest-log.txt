@@ -1,0 +1,16 @@
+2025-03-13 16:22:47 - INFO - main - Contexto base iniciado
+2025-03-13 16:22:47 - DEBUG - main - Contexto de aplicación activo
+2025-03-13 16:22:47 - INFO - test_contexts - Contextos iniciales: 1
+2025-03-13 16:22:47 - DEBUG - main - Contexto de aplicación activo
+2025-03-13 16:22:47 - DEBUG - main - Contexto de request activo
+2025-03-13 16:22:47 - INFO - test_contexts - Contextos con request: 2
+2025-03-13 16:22:47 - DEBUG - main - Contexto de aplicación activo
+2025-03-13 16:22:47 - INFO - test_contexts - Contextos finales: 1
+2025-03-13 16:22:47 - DEBUG - main - Contexto de aplicación activo
+2025-03-13 16:22:47 - ERROR - main - Error en cleanup_sqlalchemy: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - ERROR - main - Error en cleanup_sqlalchemy: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - ERROR - main - Error en limpieza final: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - ERROR - main - Error en cleanup_sqlalchemy: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - ERROR - main - Error en cleanup_sqlalchemy: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - ERROR - main - Error en limpieza final: 'scoped_session' object has no attribute 'close_all_sessions'
+2025-03-13 16:22:47 - INFO - main - Limpiando contexto base

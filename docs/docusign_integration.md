@@ -15,7 +15,19 @@ graph TD
     F --> G[Actualizar Estado DB]
 ```
 
-### 2.1 Proceso Detallado
+### 2.1 Estado Actual
+- ✓ Autenticación OAuth 2.0 con PKCE
+- ✓ Generación y envío de documentos
+- ✓ Validación HMAC de webhooks
+- ✓ Manejo de estados de firma
+
+### 2.2 Mejoras Implementadas
+- Validación robusta de datos de entrada
+- Manejo diferenciado de errores HTTP
+- Tests unitarios y de integración
+- Logging detallado
+
+### 2.3 Proceso Detallado
 1. API genera PDF del acuerdo
 2. Se envía a DocuSign API usando OAuth 2.0
 3. DocuSign crea un envelope y envía notificaciones
@@ -23,25 +35,25 @@ graph TD
 5. DocuSign notifica mediante webhook
 6. API actualiza el estado en la base de datos
 
-## 3. Configuración Requerida
+## 3. Configuración
 
-### 3.1 Variables en config.py
+### 3.1 Variables Requeridas
 ```python
-# DocuSign Configuration
-DOCUSIGN_ACCOUNT_ID = 'your_account_id'
-DOCUSIGN_INTEGRATION_KEY = 'your_integration_key'
-DOCUSIGN_USER_ID = 'your_user_id'
-DOCUSIGN_RSA_KEY = 'path_to_private_key'
-DOCUSIGN_AUTH_SERVER = 'account-d.docusign.com'  # Para desarrollo
-DOCUSIGN_BASE_URL = 'https://demo.docusign.net/restapi'  # Para desarrollo
+DOCUSIGN_CONFIG = {
+    'INTEGRATION_KEY': 'Configurado',
+    'CLIENT_SECRET': 'Configurado',
+    'HMAC_KEY': 'Configurado',
+    'ACCOUNT_ID': 'Configurado',
+    'AUTH_SERVER': 'account-d.docusign.com',
+    'REDIRECT_URI': 'http://localhost:5000/api/callback'
+}
 ```
 
-### 3.2 Requisitos de OAuth 2.0
-1. Crear una aplicación en DocuSign
-2. Generar par de claves RSA
-3. Configurar permisos:
-   - signature
-   - impersonation
+### 3.2 Estado de Tests
+- ✓ Test de autenticación OAuth
+- ✓ Test de validación HMAC
+- ✓ Test de callbacks
+- ✓ Test de estados de documento
 
 ## 4. Nuevos Endpoints
 

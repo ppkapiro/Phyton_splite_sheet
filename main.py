@@ -1,40 +1,56 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from config import Config
-from models.database import init_db
+from models.database import db, init_app, create_tables
 import os
+from dotenv import load_dotenv
 
-# Crear e inicializar la aplicación Flask
-app = Flask(__name__)
-CORS(app)
-app.config.from_object(Config)
-jwt = JWTManager(app)
+def create_app():
+    """Crea y configura la aplicación Flask"""
+    # Cargar variables de entorno
+    load_dotenv()
 
-# Inicializar la base de datos
-init_db(app)
+    # Crear aplicación Flask
+    app = Flask(__name__)
+    CORS(app)
 
-# IMPORTANTE: Registrar blueprints después de crear la app
-# Importar blueprints - el orden es importante
-from routes.base import bp as base_bp
-from routes.api import bp as api_bp
+    # Configuración desde variables de entorno
+    app.config.update(
+        DEBUG=os.getenv('FLASK_DEBUG', True),
+        SECRET_KEY=os.getenv('SECRET_KEY'),
+        SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI'),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY'),
+        JWT_ACCESS_TOKEN_EXPIRES=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)),
+        JWT_REFRESH_TOKEN_EXPIRES=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 604800))
+    )
 
-# Registrar blueprint base
-app.register_blueprint(base_bp)
+    # Asegurar que SQLAlchemy se inicializa una sola vez
+    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
+        init_app(app)
+    
+    jwt = JWTManager(app)
 
-# Registrar blueprint api con prefijo /api para todos sus endpoints
-app.register_blueprint(api_bp, url_prefix='/api')
+    # Registrar blueprints y crear tablas
+    with app.app_context():
+        from routes.base import bp as base_bp
+        from routes.api import bp as api_bp
+        
+        app.register_blueprint(base_bp)
+        app.register_blueprint(api_bp, url_prefix='/api')
+        
+        create_tables(app)
 
-if app.debug:
-    # Imprimir rutas registradas para verificación
-    print("\nEndpoints disponibles:")
-    for rule in app.url_map.iter_rules():
-        print(f"{rule.methods} {rule.rule} -> {rule.endpoint}")
+    # Configuración de JWT
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        from services.auth_service import AuthService
+        return AuthService.is_token_blacklisted(jwt_payload["jti"])
 
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload):
-    from services.auth_service import AuthService
-    return AuthService.is_token_blacklisted(jwt_payload["jti"])
+    return app
+
+# Crear la aplicación
+app = create_app()
 
 # Manejador de error 404
 @app.errorhandler(404)

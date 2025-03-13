@@ -1,0 +1,35 @@
+{
+    "summary": {
+        "total_tests": 4,
+        "passed": 2,
+        "failed": 2,
+        "duration": "2.30 segundos",
+        "timestamp": "2025-03-13 14:52:19"
+    },
+    "details": [
+        {
+            "test_name": "test_api_status",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-13 14:52:19"
+        },
+        {
+            "test_name": "test_api_status",
+            "status": "PASS",
+            "message": null,
+            "timestamp": "2025-03-13 14:52:19"
+        },
+        {
+            "test_name": "test_auth_register",
+            "status": "FAIL",
+            "message": "Registro fallido: b'{\\n  \"email\": [\\n    \"El email es obligatorio\"\\n  ], \\n  \"password\": [\\n    \"La contrase\\\\u00f1a debe contener al menos:\\\\n- Una letra may\\\\u00fascula\\\\n- Una letra min\\\\u00fascula\\\\n- Un n\\\\u00famero\\\\n- Entre 6 y 128 caracteres\"\\n  ]\\n}\\n'",
+            "timestamp": "2025-03-13 14:52:19"
+        },
+        {
+            "test_name": "test_auth_flow",
+            "status": "FAIL",
+            "message": "tests\\test_status.py:90: in test_auth_flow\n    assert register_response.status_code == 201\nE   assert 400 == 201\nE     +400\nE     -201",
+            "timestamp": "2025-03-13 14:52:19"
+        }
+    ]
+}

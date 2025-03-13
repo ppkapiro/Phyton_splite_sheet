@@ -2,42 +2,20 @@ from marshmallow import Schema, fields, validates, ValidationError
 import re
 
 class SendSignatureSchema(Schema):
-    """
-    Esquema de validación para el endpoint /api/send_signature.
-    
-    Campos requeridos:
-    - document_id: Identificador alfanumérico del documento
-    - recipient_email: Email del destinatario
-    - recipient_name: Nombre del destinatario
-    
-    Campo opcional:
-    - message: Mensaje personalizado para el destinatario
-    """
-    
-    document_id = fields.Str(
-        required=True,
-        error_messages={
-            "required": "El document_id es obligatorio",
-            "type": "El document_id debe ser una cadena de texto",
-            "invalid": "Formato de document_id inválido"
-        }
-    )
-    
-    recipient_email = fields.Email(
-        required=True,
-        error_messages={
-            "required": "El email del destinatario es obligatorio",
-            "invalid": "El formato del email no es válido"
-        }
-    )
-    
-    recipient_name = fields.Str(
-        required=True,
-        error_messages={
-            "required": "El nombre del destinatario es obligatorio",
-            "type": "El nombre debe ser una cadena de texto"
-        }
-    )
+    """Esquema de validación para el endpoint send_for_signature"""
+    document_id = fields.Str(required=True, error_messages={
+        'required': 'El document_id es obligatorio',
+        'null': 'El document_id no puede ser nulo',
+        'invalid': 'El document_id no es válido'
+    })
+    recipient_email = fields.Email(required=True, error_messages={
+        'required': 'El email del destinatario es obligatorio',
+        'invalid': 'El email proporcionado no es válido'
+    })
+    recipient_name = fields.Str(required=True, error_messages={
+        'required': 'El nombre del destinatario es obligatorio',
+        'null': 'El nombre del destinatario no puede ser nulo'
+    })
     
     message = fields.Str(
         required=False,
@@ -80,12 +58,11 @@ class SendSignatureSchema(Schema):
 
     def handle_error(self, exc, data, **kwargs):
         """Personalizar formato de errores de validación"""
-        errors = {}
+        error_messages = {}
         for field_name, field_errors in exc.messages.items():
-            errors[field_name] = field_errors[0] if isinstance(field_errors, list) else field_errors
-        
-        return {
-            "error": "Error de validación",
-            "details": errors,
-            "received_data": data
-        }
+            if isinstance(field_errors, list):
+                error_messages[field_name] = field_errors[0]
+            else:
+                error_messages[field_name] = field_errors
+
+        return error_messages

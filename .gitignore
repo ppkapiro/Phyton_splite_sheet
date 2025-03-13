@@ -3,6 +3,11 @@ config.py
 *.key
 *.pem
 
+# Asegurar que config.py no se suba
+/config.py
+/src/config.py
+**/config.py
+
 # Python
 __pycache__/
 *.py[cod]
