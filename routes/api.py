@@ -4,6 +4,7 @@ from flask_jwt_extended import (
     create_refresh_token, get_jwt_identity,
     get_jwt
 )
+from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.database import db, add_user, get_user
 from services.docusign_service import DocuSignService
@@ -11,6 +12,12 @@ from services.auth_service import AuthService
 from datetime import datetime
 import logging
 import time
+from src.register_schema import RegisterSchema
+from src.login_schema import LoginSchema
+from src.send_signature_schema import SendSignatureSchema
+from src.status_check_schema import StatusCheckSchema
+from src.update_document_schema import UpdateDocumentSchema
+from src.delete_document_schema import DeleteDocumentSchema
 
 bp = Blueprint('api', __name__)
 
@@ -24,61 +31,27 @@ def status():
 
 @bp.route('/register', methods=['POST'])
 def register():
-    """
-    Endpoint para registro de nuevos usuarios.
-    
-    Valida los datos de entrada, verifica duplicados,
-    hashea la contraseña y crea el usuario en la BD.
-    
-    Returns:
-        201: Usuario creado exitosamente
-        400: Datos inválidos o usuario existente
-        500: Error interno del servidor
-    """
+    """Endpoint para registro de usuarios con validación Marshmallow"""
     try:
-        # 1. Extraer y validar datos de entrada
-        data = request.get_json()
-        if not data or 'username' not in data or 'password' not in data:
-            return jsonify({
-                "error": "Datos incompletos",
-                "details": "Se requieren username y password"
-            }), 400
-
-        username = data['username']
-        password = data['password']
-
-        # 2. Validar requisitos mínimos
-        if len(username) < 3:
-            return jsonify({
-                "error": "Username inválido",
-                "details": "El username debe tener al menos 3 caracteres"
-            }), 400
-        
-        if len(password) < 6:
-            return jsonify({
-                "error": "Password inválida",
-                "details": "La password debe tener al menos 6 caracteres"
-            }), 400
-
-        # 3. Verificar si el usuario ya existe
-        if get_user(username):
-            return jsonify({
-                "error": "Usuario ya existe",
-                "details": "Por favor elija otro username"
-            }), 409
-
-        # 4. Crear nuevo usuario
+        # Instanciar y validar esquema
+        schema = RegisterSchema()
         try:
-            user = add_user(username, password)
-            current_app.logger.info(f"Usuario creado exitosamente: {username}")
+            # Validar datos de entrada
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # Continuar con el registro si los datos son válidos
+        try:
+            user = add_user(data['username'], data['password'])
+            current_app.logger.info(f"Usuario creado exitosamente: {data['username']}")
             
-            # 5. Retornar respuesta exitosa
             return jsonify({
                 "message": "Usuario registrado exitosamente",
                 "user": {
                     "id": user.id,
                     "username": user.username,
-                    "created_at": user.created_at.isoformat()
+                    "email": data['email']
                 }
             }), 201
 
@@ -90,7 +63,7 @@ def register():
             }), 400
 
     except Exception as e:
-        current_app.logger.error(f"Error interno en registro: {str(e)}")
+        current_app.logger.error(f"Error en registro: {str(e)}")
         return jsonify({
             "error": "Error interno del servidor",
             "details": "Por favor intente más tarde"
@@ -99,51 +72,34 @@ def register():
 @bp.route('/login', methods=['POST'])
 def login():
     """
-    Endpoint para autenticación de usuarios.
-    
-    Valida credenciales y genera tokens JWT si son correctas.
-    
-    Returns:
-        200: Login exitoso + tokens JWT
-        400: Datos incompletos
-        401: Credenciales inválidas
-        500: Error interno del servidor
+    Endpoint para autenticación de usuarios con validación Marshmallow.
     """
     try:
-        # 1. Extraer y validar datos de entrada
-        data = request.get_json()
-        if not data or 'username' not in data or 'password' not in data:
-            return jsonify({
-                "error": "Credenciales incompletas",
-                "details": "Se requieren username y password"
-            }), 400
+        # 1. Validar datos de entrada usando Marshmallow
+        schema = LoginSchema()
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
 
         username = data['username']
         password = data['password']
 
-        # 2. Buscar usuario en la base de datos
+        # 2. Buscar usuario y verificar credenciales
         user = get_user(username)
-        if not user:
-            current_app.logger.warning(f"Intento de login con usuario inexistente: {username}")
+        if not user or not user.check_password(password):
+            current_app.logger.warning(f"Intento de login fallido para usuario: {username}")
             return jsonify({
                 "error": "Credenciales inválidas"
             }), 401
 
-        # 3. Verificar contraseña
-        if not user.check_password(password):
-            current_app.logger.warning(f"Contraseña incorrecta para usuario: {username}")
-            return jsonify({
-                "error": "Credenciales inválidas"
-            }), 401
-
-        # 4. Generar tokens JWT
+        # 3. Generar tokens JWT
         access_token = create_access_token(identity=username)
         refresh_token = create_refresh_token(identity=username)
 
-        # 5. Registrar login exitoso
+        # 4. Registrar login exitoso
         current_app.logger.info(f"Login exitoso para usuario: {username}")
 
-        # 6. Retornar respuesta exitosa
         return jsonify({
             "message": "Login exitoso",
             "access_token": access_token,
@@ -313,23 +269,42 @@ def generate_pdf():
         }), 500
 
 @bp.route('/send_for_signature', methods=['POST'])
-# NOTA: Se ha desactivado temporalmente la protección JWT para pruebas.
-# En la versión final, se reactivará la validación de token.
-# @jwt_required()  # Comentado temporalmente
 def send_for_signature():
     """
-    Stub temporal para el endpoint de firma.
-    Actualmente sin autenticación para facilitar pruebas.
-    En la versión final se requerirá autenticación JWT.
-    
-    Returns:
-        200: Firma enviada exitosamente (simulado)
+    Endpoint para envío de documentos a firma.
+    Implementa validación mediante Marshmallow.
     """
-    return jsonify({
-        "status": "success",
-        "message": "Firma enviada",
-        "envelope_id": "test_123"
-    }), 200
+    try:
+        # 1. Validar datos de entrada usando Marshmallow
+        schema = SendSignatureSchema()
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # 2. Simular envío a DocuSign (placeholder)
+        envelope_id = f"test_123_{data['document_id']}"
+
+        # 3. Retornar respuesta exitosa
+        return jsonify({
+            "status": "success",
+            "message": "Firma enviada",
+            "data": {
+                "envelope_id": envelope_id,
+                "document_id": data['document_id'],
+                "recipient": {
+                    "email": data['recipient_email'],
+                    "name": data['recipient_name']
+                }
+            }
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Error en envío para firma: {str(e)}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "details": "Por favor intente más tarde"
+        }), 500
 
 @bp.route('/signature_status/<envelope_id>', methods=['GET'])
 @jwt_required()
@@ -404,6 +379,143 @@ def get_signature_status(envelope_id):
         return jsonify({
             "error": "Error interno del servidor",
             "details": "Error al procesar la solicitud"
+        }), 500
+
+@bp.route('/status_check', methods=['POST'])
+@jwt_required()
+def status_check():
+    """
+    Endpoint para consultar estado de documentos.
+    Requiere autenticación JWT.
+    """
+    try:
+        # 1. Validar datos de entrada usando Marshmallow
+        schema = StatusCheckSchema()
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # 2. Obtener identidad del usuario actual
+        current_user = get_jwt_identity()
+        current_app.logger.info(
+            f"Consulta de estado para documento {data['document_id']} "
+            f"por usuario {current_user}"
+        )
+
+        try:
+            # 3. Consultar estado en DocuSign (placeholder)
+            docusign = DocuSignService()
+            status = docusign.get_document_status(
+                document_id=data['document_id'],
+                recipient_email=data.get('recipient_email')
+            )
+
+            # 4. Retornar respuesta exitosa
+            return jsonify({
+                "status": "success",
+                "message": "Estado consultado exitosamente",
+                "data": status
+            }), 200
+
+        except Exception as e:
+            current_app.logger.error(f"Error consultando estado: {str(e)}")
+            return jsonify({
+                "error": "Error en consulta",
+                "details": "No se pudo obtener el estado del documento"
+            }), 503
+
+    except Exception as e:
+        current_app.logger.error(f"Error interno: {str(e)}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "details": "Por favor intente más tarde"
+        }), 500
+
+@bp.route('/update_document', methods=['PUT'])
+@jwt_required()
+def update_document():
+    """
+    Endpoint para actualización de documentos.
+    Requiere autenticación JWT.
+    """
+    try:
+        # 1. Validar datos de entrada usando Marshmallow
+        schema = UpdateDocumentSchema()
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # 2. Obtener identidad del usuario actual
+        current_user = get_jwt_identity()
+        current_app.logger.info(
+            f"Solicitud de actualización para documento {data['document_id']} "
+            f"por usuario {current_user}"
+        )
+
+        # 3. Actualizar documento (placeholder)
+        # TODO: Implementar actualización real en la base de datos
+        return jsonify({
+            "status": "success",
+            "message": "Documento actualizado exitosamente",
+            "data": data
+        }), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Error actualizando documento: {str(e)}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "details": "Por favor intente más tarde"
+        }), 500
+
+@bp.route('/delete_document', methods=['POST'])
+@jwt_required()
+def delete_document():
+    """
+    Endpoint para eliminar documentos.
+    Requiere autenticación JWT.
+    """
+    try:
+        # 1. Validar datos de entrada usando Marshmallow
+        schema = DeleteDocumentSchema()
+        try:
+            data = schema.load(request.get_json())
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # 2. Obtener identidad del usuario actual
+        current_user = get_jwt_identity()
+        current_app.logger.info(
+            f"Solicitud de eliminación para documento {data['document_id']} "
+            f"por usuario {current_user}"
+        )
+
+        # 3. Verificar existencia del documento y permisos
+        # TODO: Implementar lógica de verificación
+
+        # 4. Eliminar documento
+        try:
+            # TODO: Implementar eliminación real en la base de datos
+            return jsonify({
+                "status": "success",
+                "message": "Documento eliminado exitosamente",
+                "data": {
+                    "document_id": data['document_id']
+                }
+            }), 200
+        except Exception as e:
+            current_app.logger.error(f"Error eliminando documento: {str(e)}")
+            return jsonify({
+                "error": "Error al eliminar documento",
+                "details": "No se pudo completar la operación"
+            }), 500
+
+    except Exception as e:
+        current_app.logger.error(f"Error en delete_document: {str(e)}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "details": "Por favor intente más tarde"
         }), 500
 
 # Error handlers
