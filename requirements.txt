@@ -33,3 +33,6 @@ urllib3==1.26.8
 certifi==2021.10.8
 charset-normalizer==2.0.12
 idna==3.3
+
+# PDF Generation
+reportlab==4.0.4

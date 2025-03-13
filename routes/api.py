@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, send_file
 from flask_jwt_extended import (
     jwt_required, create_access_token, 
     create_refresh_token, get_jwt_identity,
@@ -18,6 +18,9 @@ from src.send_signature_schema import SendSignatureSchema
 from src.status_check_schema import StatusCheckSchema
 from src.update_document_schema import UpdateDocumentSchema
 from src.delete_document_schema import DeleteDocumentSchema
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 bp = Blueprint('api', __name__)
 
@@ -175,8 +178,6 @@ def logout():
 def generate_pdf():
     """
     Endpoint para generación de PDF de Split Sheet.
-    NOTA: Esta es una implementación placeholder.
-    En la versión final, se integrará con un servicio real de generación de PDF.
     
     Espera recibir:
     {
@@ -190,82 +191,90 @@ def generate_pdf():
             "project": "Álbum X"
         }
     }
-    
-    Returns:
-        200: PDF generado exitosamente + URL y metadata
-        400: Datos inválidos o incompletos
-        401: No autenticado
-        500: Error en generación
     """
     try:
-        # 1. Obtener identidad del usuario
+        # 1. Obtener identidad del usuario y datos
         current_user = get_jwt_identity()
-        current_app.logger.info(f"Solicitud de generación de PDF de {current_user}")
-
-        # 2. Validar datos de entrada
         data = request.get_json()
-        if not data:
-            return jsonify({
-                "error": "Datos faltantes",
-                "details": "Se requiere el cuerpo de la solicitud"
-            }), 400
-
-        # 3. Validar campos requeridos
-        required_fields = ['title', 'participants']
-        missing_fields = [field for field in required_fields if field not in data]
-        if missing_fields:
+        
+        # 2. Validar datos de entrada
+        if not data or 'title' not in data or 'participants' not in data:
             return jsonify({
                 "error": "Datos incompletos",
-                "details": f"Campos faltantes: {', '.join(missing_fields)}"
+                "details": "Se requiere título y participantes"
             }), 400
 
-        # 4. Validar estructura de participantes
+        # 3. Validar participantes
         if not isinstance(data['participants'], list) or not data['participants']:
             return jsonify({
                 "error": "Datos inválidos",
                 "details": "Se requiere al menos un participante"
             }), 400
 
-        # 5. Simular generación de PDF (placeholder)
-        timestamp = int(time.time())
-        pdf_data = {
-            "document_id": f"split_{timestamp}",
-            "url": f"https://storage.example.com/splits/{timestamp}.pdf",
-            "filename": f"split_sheet_{data['title']}_{timestamp}.pdf",
-            "metadata": {
-                "title": data['title'],
-                "creator": current_user,
-                "created_at": datetime.utcnow().isoformat(),
-                "participants_count": len(data['participants']),
-                "total_shares": sum(p.get('share', 0) for p in data['participants'])
-            },
-            "status": "generated"
-        }
+        # 4. Generar PDF en memoria
+        pdf_buffer = BytesIO()
+        pdf = canvas.Canvas(pdf_buffer, pagesize=letter)
+        pdf.setTitle(f"Split Sheet - {data['title']}")
 
-        # 6. Registrar generación exitosa
+        # 5. Escribir contenido en el PDF
+        # Título
+        pdf.setFont("Helvetica-Bold", 16)
+        pdf.drawString(100, 750, "SPLIT SHEET AGREEMENT")
+        
+        # Información general
+        pdf.setFont("Helvetica", 12)
+        pdf.drawString(100, 720, f"Título: {data['title']}")
+        pdf.drawString(100, 700, f"Fecha: {data['metadata'].get('date', 'No especificada')}")
+        pdf.drawString(100, 680, f"Proyecto: {data['metadata'].get('project', 'No especificado')}")
+        
+        # Participantes
+        y_position = 620
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(100, y_position, "Participantes:")
+        y_position -= 20
+        
+        # Lista de participantes
+        pdf.setFont("Helvetica", 12)
+        for participant in data['participants']:
+            pdf.drawString(100, y_position, f"Nombre: {participant['name']}")
+            pdf.drawString(300, y_position, f"Rol: {participant['role']}")
+            pdf.drawString(450, y_position, f"Share: {participant['share']}%")
+            y_position -= 20
+
+        # Espacios para firmas
+        y_position = max(y_position - 40, 200)
+        for participant in data['participants']:
+            pdf.drawString(100, y_position, "_" * 30)
+            pdf.drawString(100, y_position - 20, f"Firma de {participant['name']}")
+            y_position -= 60
+
+        # 6. Finalizar y guardar PDF
+        pdf.showPage()
+        pdf.save()
+        pdf_buffer.seek(0)
+
+        # 7. Registrar generación exitosa
         current_app.logger.info(
-            f"PDF generado exitosamente: {pdf_data['document_id']} "
-            f"para '{data['title']}' por {current_user}"
+            f"PDF generado exitosamente para '{data['title']}' "
+            f"por usuario {current_user}"
         )
 
-        # 7. Retornar respuesta exitosa
-        return jsonify({
-            "status": "success",
-            "message": "PDF generado exitosamente",
-            "data": pdf_data
-        }), 200
+        # 8. Retornar PDF como respuesta descargable
+        timestamp = int(time.time())
+        filename = f"split_sheet_{data['title']}_{timestamp}.pdf"
+        
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
 
-    except KeyError as e:
-        current_app.logger.error(f"Datos inválidos: {str(e)}")
-        return jsonify({
-            "error": "Datos inválidos",
-            "details": f"Campo requerido faltante: {str(e)}"
-        }), 400
     except Exception as e:
         current_app.logger.error(f"Error generando PDF: {str(e)}")
         return jsonify({
             "error": "Error en generación de PDF",
-            "details": "Error interno del servidor"
+            "details": str(e)
         }), 500
 
 @bp.route('/send_for_signature', methods=['POST'])
