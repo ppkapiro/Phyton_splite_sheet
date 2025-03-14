@@ -1,19 +1,61 @@
 from flask_sqlalchemy import SQLAlchemy
+from contextlib import contextmanager
 from sqlalchemy.exc import SQLAlchemyError
+from flask import current_app
 
-# Crear una única instancia de SQLAlchemy
 db = SQLAlchemy()
+
+@contextmanager
+def session_scope():
+    """Contexto seguro para manejo de sesiones."""
+    session = db.session()
+    try:
+        yield session
+        # Solo hacer commit si la sesión no ha sido cerrada
+        if session.is_active:
+            session.commit()
+    except:
+        # Solo hacer rollback si la sesión no ha sido cerrada
+        if session.is_active:
+            session.rollback()
+        raise
+    finally:
+        # Asegurarse de que la sesión se cierra siempre
+        try:
+            session.close()
+        except:
+            # Si hay error al cerrar, ignorarlo y continuar
+            pass
+
+def init_app(app):
+    """Inicialización única y centralizada de SQLAlchemy."""
+    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
+        db.init_app(app)
+        with app.app_context():
+            # Verificar conexión
+            db.engine.connect().close()
+    return db
+
+def init_db(app):
+    """
+    Inicializa la base de datos y crea las tablas.
+    Este es el punto de entrada principal para la inicialización de la BD.
+    """
+    if not db.get_app():
+        init_app(app)
+    
+    with app.app_context():
+        db.create_all()
+        current_app.logger.info("Base de datos inicializada correctamente")
+    
+    return db
 
 # Importar modelos para evitar importación circular
 from .user import User
 from .agreement import Agreement
 from .document import Document
 
-def init_app(app):
-    """Inicializa la extensión SQLAlchemy con la aplicación"""
-    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
-        db.init_app(app)
-
+# Funciones de utilidad para base de datos
 def create_tables(app):
     """Crea todas las tablas en la base de datos"""
     with app.app_context():
@@ -24,28 +66,11 @@ def drop_tables(app):
     with app.app_context():
         db.drop_all()
 
-def init_db(app):
-    """Inicializar la base de datos"""
-    if not db.get_app():
-        db.init_app(app)
-    try:
-        with app.app_context():
-            db.create_all()
-            app.logger.info("Base de datos inicializada correctamente")
-            
-    except SQLAlchemyError as e:
-        app.logger.error(f"Error inicializando la base de datos: {str(e)}")
-        raise
-
 def reset_db():
-    """Limpiar todas las tablas"""
-    for table in reversed(db.metadata.sorted_tables):
-        try:
-            db.session.execute(table.delete())
-        except:
-            db.session.rollback()
-            raise
-    db.session.commit()
+    """Limpiar todas las tablas de forma segura."""
+    with session_scope() as session:
+        for table in reversed(db.metadata.sorted_tables):
+            session.execute(table.delete())
 
 def add_user(username: str, password: str):
     from .user import User
@@ -104,3 +129,5 @@ def get_document(document_id: int):
 def get_document_by_envelope(envelope_id: str):
     """Obtener documento por envelope_id de DocuSign"""
     return Document.query.filter_by(envelope_id=envelope_id).first()
+
+__all__ = ['db', 'init_app', 'session_scope', 'create_tables', 'drop_tables']

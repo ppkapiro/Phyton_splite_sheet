@@ -32,3 +32,11 @@ class Config:
         'envelope-declined',
         'recipient-completed'
     ]
+    
+    # Configuración SQLAlchemy
+    SQLALCHEMY_POOL_SIZE = 5
+    SQLALCHEMY_POOL_TIMEOUT = 10
+    SQLALCHEMY_POOL_RECYCLE = 3600
+    
+    # Importante para tests
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
