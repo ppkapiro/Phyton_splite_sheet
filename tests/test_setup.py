@@ -1,7 +1,7 @@
 import pytest
 from flask import Flask
 from config import Config
-from models.database import db, init_db
+from models.database import db, init_app
 import logging
 import os
 from datetime import datetime
@@ -77,7 +77,7 @@ def setup_test_env(request):
 import pytest
 from flask import Flask
 from config import Config
-from models.database import db, init_db
+from models.database import db, init_app
 import logging
 
 @pytest.fixture
@@ -90,7 +90,7 @@ def app():
     logging.basicConfig(level=logging.DEBUG)
     
     # Inicializar la base de datos
-    init_db(app)
+    init_app(app)  # Usar init_app en lugar de init_db
     
     yield app
 

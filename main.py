@@ -1,9 +1,16 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from models.database import db, init_app, create_tables
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+
+# Importar los blueprints necesarios
+from routes.api import bp as api_bp
+from routes.api import pdf_bp  # Asegurarnos de importar el blueprint pdf_bp
+from routes.protected import protected_bp
 
 def create_app():
     """Crea y configura la aplicación Flask"""
@@ -14,32 +21,47 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
+    # Asegurar que los directorios necesarios existen
+    app_dir = Path(app.root_path)
+    migrations_dir = app_dir / 'migrations'
+    migrations_dir.mkdir(exist_ok=True)
+    (app_dir / 'instance').mkdir(exist_ok=True)
+    (app_dir / 'tests' / 'output').mkdir(parents=True, exist_ok=True)
+
     # Configuración desde variables de entorno
     app.config.update(
         DEBUG=os.getenv('FLASK_DEBUG', True),
         SECRET_KEY=os.getenv('SECRET_KEY'),
-        SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI'),
+        SQLALCHEMY_DATABASE_URI=os.getenv(
+            'SQLALCHEMY_DATABASE_URI',
+            'sqlite:///' + os.path.join(app.instance_path, 'app.db')
+        ),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY'),
         JWT_ACCESS_TOKEN_EXPIRES=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)),
-        JWT_REFRESH_TOKEN_EXPIRES=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 604800))
+        JWT_REFRESH_TOKEN_EXPIRES=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 604800)),
+        FLASK_APP='main.py',  # Importante para las migraciones
+        MIGRATIONS_DIRECTORY=str(migrations_dir)  # Ruta explícita para migraciones
     )
 
-    # Asegurar que SQLAlchemy se inicializa una sola vez
-    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
-        init_app(app)
-    
+    # Inicializar extensiones
+    init_app(app)  # Usa la función corregida
     jwt = JWTManager(app)
 
-    # Registrar blueprints y crear tablas
+    # Registrar blueprints
     with app.app_context():
         from routes.base import bp as base_bp
+        from routes.protected import protected_bp
         from routes.api import bp as api_bp
         
         app.register_blueprint(base_bp)
         app.register_blueprint(api_bp, url_prefix='/api')
+        # Mover endpoint de PDF al blueprint protegido
+        app.register_blueprint(protected_bp, url_prefix='/api/pdf')
         
-        create_tables(app)
+        # Solo crear tablas si estamos en modo testing
+        if app.config.get('TESTING', False) or app.config.get('ENV') == 'testing':
+            create_tables(app)
 
     # Configuración de JWT
     @jwt.token_in_blocklist_loader
@@ -57,6 +79,5 @@ app = create_app()
 def not_found(error):
     return jsonify({'error': '404 - Not Found'}), 404
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    app.run(debug=True, use_reloader=False)  # Evita la doble inicialización

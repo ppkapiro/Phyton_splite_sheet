@@ -27,11 +27,13 @@ import os
 import requests
 from dotenv import load_dotenv
 from services.docusign_pkce import DocuSignPKCE
+from .protected import protected_bp
 
 # Cargar variables de entorno
 load_dotenv()
 
 bp = Blueprint('api', __name__)
+pdf_bp = protected_bp
 
 @bp.route('/status')
 def status():
@@ -183,43 +185,61 @@ def logout():
             "details": "Por favor intente más tarde"
         }), 500
 
-@bp.route('/generate_pdf', methods=['POST'])
-@jwt_required()
+@pdf_bp.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
-    """
-    Endpoint para generación de PDF de Split Sheet.
-    
-    Espera recibir:
-    {
-        "title": "Nombre de la canción",
-        "participants": [
-            {"name": "Artista 1", "role": "Compositor", "share": 50},
-            {"name": "Artista 2", "role": "Productor", "share": 50}
-        ],
-        "metadata": {
-            "date": "2024-03-07",
-            "project": "Álbum X"
-        }
-    }
-    """
+    """Endpoint para generación de PDF."""
     try:
-        # 1. Obtener identidad del usuario y datos
         current_user = get_jwt_identity()
+        current_app.logger.info(f"Generando PDF para usuario: {current_user}")
+
+        # Obtener y validar datos
+        data = request.get_json()
+        current_app.logger.info(f"Generando PDF para usuario: {current_user}")
+
+        # 1. Obtener identidad del usuario y datos
         data = request.get_json()
         
-        # 2. Validar datos de entrada
-        if not data or 'title' not in data or 'participants' not in data:
+        # 2. Validar datos de entrada con mensajes específicos
+        if not data:
+            current_app.logger.error("No se recibieron datos en el request")
             return jsonify({
-                "error": "Datos incompletos",
-                "details": "Se requiere título y participantes"
+                "error": "Datos faltantes",
+                "details": "El body del request está vacío"
             }), 400
 
-        # 3. Validar participantes
+        # Validar campos requeridos con mensajes específicos
+        required_fields = ['title', 'participants', 'metadata']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            current_app.logger.error(f"Campos faltantes: {missing_fields}")
+            return jsonify({
+                "error": "Datos incompletos",
+                "details": f"Campos requeridos faltantes: {', '.join(missing_fields)}"
+            }), 400
+
+        # 3. Validar estructura de participantes
         if not isinstance(data['participants'], list) or not data['participants']:
+            current_app.logger.error("Lista de participantes inválida")
             return jsonify({
                 "error": "Datos inválidos",
-                "details": "Se requiere al menos un participante"
+                "details": "Se requiere al menos un participante en formato lista"
             }), 400
+
+        # Validar estructura de cada participante
+        for i, participant in enumerate(data['participants']):
+            required_participant_fields = ['name', 'role', 'share']
+            missing_participant_fields = [
+                field for field in required_participant_fields 
+                if field not in participant
+            ]
+            if missing_participant_fields:
+                current_app.logger.error(
+                    f"Campos faltantes en participante {i}: {missing_participant_fields}"
+                )
+                return jsonify({
+                    "error": "Datos inválidos",
+                    "details": f"Campos requeridos faltantes en participante {i+1}: {', '.join(missing_participant_fields)}"
+                }), 400
 
         # 4. Generar PDF en memoria
         pdf_buffer = BytesIO()
@@ -707,6 +727,15 @@ def docusign_webhook():
             "error": "Error procesando webhook",
             "details": str(e)
         }), 500
+
+@bp.route('/test_protected', methods=['GET'])
+@jwt_required()
+def test_protected():
+    """Endpoint de prueba protegido por JWT"""
+    return jsonify({
+        'message': 'Acceso autorizado',
+        'user_id': get_jwt_identity()
+    }), 200
 
 # Error handlers
 @bp.errorhandler(404)

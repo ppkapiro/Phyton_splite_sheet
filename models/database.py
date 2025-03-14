@@ -1,9 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask import current_app
+import logging
 from contextlib import contextmanager
 from sqlalchemy.exc import SQLAlchemyError
-from flask import current_app
+from pathlib import Path
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 @contextmanager
 def session_scope():
@@ -28,26 +32,9 @@ def session_scope():
             pass
 
 def init_app(app):
-    """Inicialización única y centralizada de SQLAlchemy."""
-    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
-        db.init_app(app)
-        with app.app_context():
-            # Verificar conexión
-            db.engine.connect().close()
-    return db
-
-def init_db(app):
-    """
-    Inicializa la base de datos y crea las tablas.
-    Este es el punto de entrada principal para la inicialización de la BD.
-    """
-    if not db.get_app():
-        init_app(app)
-    
-    with app.app_context():
-        db.create_all()
-        current_app.logger.info("Base de datos inicializada correctamente")
-    
+    """Inicializa la base de datos y las migraciones con la aplicación."""
+    db.init_app(app)
+    migrate.init_app(app, db)
     return db
 
 # Importar modelos para evitar importación circular
@@ -55,16 +42,42 @@ from .user import User
 from .agreement import Agreement
 from .document import Document
 
-# Funciones de utilidad para base de datos
 def create_tables(app):
-    """Crea todas las tablas en la base de datos"""
+    """
+    Crea tablas solo en modo testing.
+    En producción/desarrollo, usar migraciones.
+    """
+    if not (app.config.get('TESTING', False) or app.config.get('ENV') == 'testing'):
+        app.logger.warning(
+            "create_tables() solo debe usarse en testing. "
+            "En producción, use 'flask db upgrade'"
+        )
+        return False
+        
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            app.logger.info("Tablas creadas (modo testing)")
+            return True
+        except Exception as e:
+            app.logger.error(f"Error creando tablas: {str(e)}")
+            return False
 
 def drop_tables(app):
-    """Elimina todas las tablas de la base de datos"""
+    """
+    Elimina todas las tablas.
+    ¡PRECAUCIÓN! Solo usar en testing o desarrollo.
+    """
+    if not app.config.get('TESTING', False):
+        app.logger.warning(
+            "⚠️ Intentando eliminar tablas en modo producción/desarrollo. "
+            "Use 'flask db downgrade' para gestionar schema"
+        )
+        return
+        
     with app.app_context():
         db.drop_all()
+        app.logger.info("Tablas eliminadas (modo testing)")
 
 def reset_db():
     """Limpiar todas las tablas de forma segura."""
@@ -129,5 +142,30 @@ def get_document(document_id: int):
 def get_document_by_envelope(envelope_id: str):
     """Obtener documento por envelope_id de DocuSign"""
     return Document.query.filter_by(envelope_id=envelope_id).first()
+
+def verify_migrations():
+    """
+    Verifica el estado de las migraciones.
+    Útil para diagnóstico en desarrollo/producción.
+    """
+    try:
+        from flask import current_app
+        from flask_migrate import current
+        
+        with current_app.app_context():
+            migration_ctx = current.get_context()
+            if migration_ctx is None:
+                return False, "No hay contexto de migración"
+                
+            head_rev = migration_ctx.get_head_revision()
+            current_rev = migration_ctx.get_current_revision()
+            
+            if head_rev == current_rev:
+                return True, "Base de datos actualizada"
+            else:
+                return False, f"Migraciones pendientes: actual={current_rev}, última={head_rev}"
+                
+    except Exception as e:
+        return False, f"Error verificando migraciones: {str(e)}"
 
 __all__ = ['db', 'init_app', 'session_scope', 'create_tables', 'drop_tables']

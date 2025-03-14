@@ -1,15 +1,25 @@
 import pytest
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, current_app, _app_ctx_stack, _request_ctx_stack, has_app_context, has_request_context
 from config import Config
-from models.database import db, init_db, init_app, session_scope  # Asegurar importación de session_scope
+from models.database import db, init_app, session_scope  # Eliminar init_db
 from .test_utils import TestReporter
 from main import app as production_app, create_app
 import logging
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+# Agregar directorio raíz al PYTHONPATH
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
+
+# Importar explícitamente todos los modelos
+from models.user import User
+from models.agreement import Agreement
+from models.document import Document
 
 # Crear session factory una sola vez
 SessionFactory = sessionmaker(bind=None)  # Se vinculará después con el engine
@@ -27,31 +37,40 @@ def initialize_reports():  # ⚠️ Se empuja el contexto pero nunca se hace pop
 def app():
     """Crear y configurar la aplicación Flask para testing"""
     app = create_app()
+    
+    # Configuración específica para tests
     app.config.update({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-        'SECRET_KEY': 'test_key',
-        'JWT_PRIVATE_KEY': 'test_key',  # Agregar clave JWT para tests
-        'JWT_PUBLIC_KEY': 'test_pub_key',  # Agregar clave pública
-        'JWT_ALGORITHM': 'HS256',  # Usar algoritmo más simple para tests
-        'DOCUSIGN_INTEGRATION_KEY': 'test_key',
-        'DOCUSIGN_CLIENT_SECRET': 'test_secret',
-        'DOCUSIGN_AUTH_SERVER': 'account-d.docusign.com',
-        'DOCUSIGN_TOKEN_URL': 'https://account-d.docusign.com/oauth/token',
-        'DOCUSIGN_REDIRECT_URI': 'http://localhost:5000/api/callback',
-        'DOCUSIGN_HMAC_KEY': 'test_hmac_key'  # Agregar clave HMAC para tests
+        'JWT_SECRET_KEY': 'test_key'
     })
     
-    # Inicializar SQLAlchemy una sola vez
-    if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
-        db.init_app(app)
-    
-    # Asegurar que las tablas se crean en el contexto de la app
-    with app.app_context():
-        db.create_all()
+    # Crear estructura de directorios necesaria
+    (Path(app.root_path).parent / 'tests' / 'output').mkdir(parents=True, exist_ok=True)
     
     return app
+
+@pytest.fixture(scope="session")
+def test_db(app):
+    """
+    Fixture para inicializar y limpiar la base de datos durante la sesión de tests.
+    Debe ejecutarse antes que otros fixtures que dependan de la base de datos.
+    """
+    with app.app_context():
+        # Limpiar cualquier estado previo
+        db.session.remove()
+        db.drop_all()
+        
+        # Crear tablas frescas
+        db.create_all()
+        current_app.logger.info("Base de datos de testing inicializada")
+        
+        yield db
+        
+        # Limpiar después de todos los tests
+        db.session.remove()
+        db.drop_all()
+        current_app.logger.info("Base de datos de testing limpiada")
 
 @pytest.fixture(scope="function")
 def reset_database(app):
@@ -179,7 +198,7 @@ def diagnose_transaction(session):
         return {"error": str(e)}
 
 @pytest.fixture(scope="function")
-def db_session(app, base_app_context):
+def db_session(app, base_app_context, initialize_database):  # Agregar dependencia
     """Fixture para manejo de sesiones con SQLAlchemy."""
     with app.app_context():
         # Limpieza previa
@@ -282,23 +301,47 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(scope="function")
 def auth_tokens(client, app):
-    """Fixture que proporciona tokens JWT para tests"""
-    with app.test_request_context():
-        # Registrar usuario de prueba
-        register_data = {
-            "username": "test_auth",
-            "password": "AuthPass123",
-            "email": "auth@test.com"
+    """Fixture mejorado para tokens JWT con diagnóstico detallado"""
+    with app.app_context():
+        # Crear usuario de prueba con password que cumple los requisitos
+        from models.user import User
+        user = User(username='test_user')
+        valid_password = 'TestPass123'  # Cumple todos los requisitos
+        user.set_password(valid_password)
+        db.session.add(user)
+        db.session.commit()
+        
+        # Login para obtener tokens con password válido
+        login_data = {
+            'username': 'test_user',
+            'password': valid_password
         }
-        client.post("/api/register", json=register_data)
         
-        # Obtener tokens
-        response = client.post("/api/login", json={
-            "username": "test_auth",
-            "password": "AuthPass123"
-        })
+        response = client.post('/api/login', json=login_data)
         
-        return json.loads(response.data)
+        # Agregar diagnóstico detallado si falla
+        if response.status_code != 200:
+            error_data = response.get_data(as_text=True)
+            current_app.logger.error(
+                f"Error en auth_tokens:\n"
+                f"Status Code: {response.status_code}\n"
+                f"Response: {error_data}\n"
+                f"Headers: {dict(response.headers)}\n"
+                f"Login Data: {login_data}"
+            )
+            
+            # Re-intentar con más información de diagnóstico
+            try:
+                json_data = response.get_json()
+                if json_data and 'error' in json_data:
+                    current_app.logger.error(f"Error específico: {json_data['error']}")
+                if json_data and 'details' in json_data:
+                    current_app.logger.error(f"Detalles: {json_data['details']}")
+            except Exception as e:
+                current_app.logger.error(f"No se pudo parsear JSON: {str(e)}")
+        
+        assert response.status_code == 200, f"Login falló: {response.get_data(as_text=True)}"
+        return response.get_json()
 
 @pytest.fixture(scope="function")
 def docusign_config(app):
@@ -316,6 +359,37 @@ def docusign_config(app):
 def docusign_auth_app(app):
     """Fixture de app con alcance function para tests de docusign_auth"""
     return app
+
+@pytest.fixture(scope="session")
+def test_output_dir(app):
+    """Fixture para manejar el directorio de salida de pruebas"""
+    output_dir = Path(app.root_path).parent / 'tests' / 'output'
+    output_dir.mkdir(exist_ok=True)
+    yield output_dir
+    
+    # Limpiar archivos de prueba después de la sesión
+    for file in output_dir.glob('*.pdf'):
+        try:
+            file.unlink()
+        except Exception as e:
+            current_app.logger.warning(f"No se pudo eliminar {file}: {e}")
+
+@pytest.fixture(scope="session")
+def ensure_output_dir(app):
+    """Asegurar que existe el directorio de salida para tests"""
+    output_dir = Path(app.root_path).parent / 'tests' / 'output'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+@pytest.fixture(autouse=True)
+def cleanup_test_files(ensure_output_dir):
+    """Limpiar archivos de test después de cada prueba"""
+    yield
+    for pdf_file in ensure_output_dir.glob('*.pdf'):
+        try:
+            pdf_file.unlink()
+        except Exception as e:
+            current_app.logger.warning(f"No se pudo eliminar {pdf_file}: {e}")
 
 def count_active_contexts():
     """
@@ -613,3 +687,52 @@ def verify_session_state():
                     current_app.logger.error(f"Error al limpiar sesión: {e}")
     except Exception as e:
         current_app.logger.warning(f"Error al verificar estado final: {e}")
+
+# Fixture para inicialización de base de datos
+@pytest.fixture(scope="session", autouse=True)
+def initialize_database(app):
+    """
+    Fixture que inicializa la base de datos al inicio de la sesión de tests.
+    Usa una base de datos SQLite persistente para garantizar consistencia.
+    """
+    test_db_path = Path(app.root_path).parent / 'tests' / 'test.db'
+    
+    # Asegurar que el directorio existe
+    test_db_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Si existe una base de datos previa, eliminarla
+    if test_db_path.exists():
+        test_db_path.unlink()
+    
+    with app.app_context():
+        # Configurar base de datos SQLite persistente
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{test_db_path}'
+        current_app.logger.info(f"Usando base de datos de testing: {test_db_path}")
+        
+        # Verificar modelos registrados
+        models = {
+            'User': User,
+            'Agreement': Agreement,
+            'Document': Document
+        }
+        current_app.logger.info(f"Modelos registrados: {list(models.keys())}")
+        
+        # Limpiar cualquier estado previo
+        db.session.remove()
+        db.drop_all()
+        
+        # Crear tablas frescas
+        db.create_all()
+        current_app.logger.info(f"Tablas creadas: {list(db.metadata.tables.keys())}")
+        
+        yield
+        
+        # Limpiar después de todos los tests
+        db.session.remove()
+        db.drop_all()
+        
+        # Eliminar el archivo de base de datos
+        if test_db_path.exists():
+            test_db_path.unlink()
+        
+        current_app.logger.info("Base de datos de testing limpiada y eliminada")
