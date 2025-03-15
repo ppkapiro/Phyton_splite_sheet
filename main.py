@@ -46,6 +46,11 @@ def create_app():
 
     # Inicializar extensiones
     init_app(app)  # Usa la función corregida
+    
+    # Cargar configuración de DocuSign
+    from config.docusign_config import init_app as init_docusign
+    init_docusign(app)
+    
     jwt = JWTManager(app)
 
     # Registrar blueprints
