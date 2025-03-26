@@ -1,231 +1,274 @@
 # Webhooks de DocuSign
 
-## Visión General
+## Introducción
 
-Los webhooks permiten a DocuSign notificar automáticamente a nuestra aplicación sobre eventos importantes, como cuando un documento ha sido firmado, entregado o rechazado. Esta implementación asíncrona elimina la necesidad de sondear constantemente la API de DocuSign.
+Los webhooks permiten a DocuSign enviar notificaciones en tiempo real sobre eventos relacionados con sobres (envelopes) y firmantes. Esta guía explica cómo configurar, validar y procesar webhooks de DocuSign en Split Sheet API.
 
-## Flujo de Funcionamiento
+## Configuración de Webhook en DocuSign
 
-```mermaid
-sequenceDiagram
-    participant DocuSign
-    participant Webhook as Webhook Endpoint
-    participant DB as Base de Datos
-    participant User as Notificación Usuario
-    
-    DocuSign->>Webhook: Notifica evento (POST /api/docusign/webhook)
-    Webhook->>Webhook: Valida firma HMAC
-    Webhook->>DB: Actualiza estado del documento
-    Webhook->>User: Notifica al usuario (opcional)
-    Webhook->>DocuSign: 200 OK
-```
+### Paso 1: Acceder a Configuración de Webhooks
 
-## Configuración en DocuSign
+1. Inicie sesión en su [cuenta de DocuSign](https://account.docusign.com/)
+2. Vaya a **Settings** > **Connect** > **Add Configuration**
+3. Seleccione **Custom**
 
-### Pasos para Configurar Webhooks
+### Paso 2: Configurar Endpoint
 
-1. Iniciar sesión en la [consola de desarrollador de DocuSign](https://admindemo.docusign.com)
-2. Navegar a **Settings > Connect**
-3. Hacer clic en **Add Configuration**
-4. Configurar los siguientes parámetros:
-   - **Name**: Split Sheet Webhook
-   - **URL**: `https://yourdomain.com/api/docusign/webhook`
-   - **Authentication**: HMAC
-   - **Secret Key**: La misma clave configurada en `DOCUSIGN_HMAC_KEY`
-   - **Include HMAC Signature**: Activado
+1. Nombre de configuración: `Split Sheet API Webhook`
+2. URL: `https://your-domain.com/api/docusign/webhook`
+3. Autenticación: Seleccione **HMAC Signature Authentication**
+4. Secret: Genere un valor aleatorio y seguro (mínimo 32 caracteres)
+   ```bash
+   python -c "import os; import base64; print(base64.b64encode(os.urandom(32)).decode())"
+   ```
+5. Guarde el mismo secret en la variable de entorno `DOCUSIGN_HMAC_KEY`
 
-### Eventos a Suscribir
+### Paso 3: Seleccionar Eventos
 
-Seleccionar los siguientes eventos para ser notificados:
+Seleccione los eventos que desea recibir:
 
 - **Envelope Events**:
-  - Envelope Sent
-  - Envelope Delivered
-  - Envelope Completed
-  - Envelope Declined
-  - Envelope Voided
+  - `Envelope Sent`
+  - `Envelope Delivered`
+  - `Envelope Completed`
+  - `Envelope Declined`
+  - `Envelope Voided`
 
 - **Recipient Events**:
-  - Recipient Completed
-  - Recipient Declined
-  - Recipient Authentication Failed
+  - `Recipient Completed`
+  - `Recipient Declined`
 
-## Implementación del Endpoint
+### Paso 4: Configuración Adicional
 
-### Validación HMAC
+1. **Envelope Data**: Seleccione los datos a incluir en las notificaciones
+   - Envelope: `envelopeId`, `status`, `emailSubject`, `sentDateTime`, `completedDateTime`
+   - Recipients: `recipientId`, `name`, `email`, `status`, `completedDateTime`
+   - Custom Fields: `all` (si usa campos personalizados)
 
-DocuSign firma cada solicitud webhook con un HMAC basado en el secreto compartido. Es crucial validar esta firma antes de procesar el evento:
+2. **Retry on Failure**: Active esta opción para que DocuSign reintente en caso de error
+
+3. **Logging**: Active esta opción para diagnóstico durante el desarrollo
+
+## Endpoint de Webhook en la API
+
+El endpoint `/api/docusign/webhook` está configurado para recibir y procesar las notificaciones:
+
+```python
+@docusign_bp.route('/webhook', methods=['POST'])
+def docusign_webhook():
+    # Validar firma HMAC
+    validator = DocuSignHMACValidator(current_app.config['DOCUSIGN_HMAC_KEY'])
+    is_valid = validator.validate_request(request)
+    
+    if not is_valid:
+        current_app.logger.warning("Webhook con firma inválida recibido")
+        return jsonify({"error": "Firma inválida"}), 401
+    
+    # Procesar eventos
+    data = request.get_json()
+    envelope_id = data.get('envelopeId')
+    status = data.get('status')
+    
+    current_app.logger.info(f"Webhook DocuSign: envelope={envelope_id}, status={status}")
+    
+    # Actualizar estado del documento
+    document = get_document_by_envelope(envelope_id)
+    if document:
+        document.status = status
+        document.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        # Opcionalmente: notificar al usuario del cambio
+        notify_user(document.user_id, {
+            'document_id': document.id,
+            'status': status
+        })
+    else:
+        current_app.logger.warning(f"Webhook para envelope desconocido: {envelope_id}")
+    
+    # Siempre responder con éxito, incluso si no se encontró el documento
+    return jsonify({"status": "success"})
+```
+
+## Validación de Firma HMAC
+
+La seguridad de los webhooks se garantiza mediante firma HMAC:
 
 ```python
 class DocuSignHMACValidator:
+    """Validador de firmas HMAC para webhooks de DocuSign."""
+    
     def __init__(self, hmac_key):
-        self.hmac_key = hmac_key.encode('utf-8')
+        self.hmac_key = hmac_key
     
     def validate_request(self, request):
-        """Valida la firma HMAC de la solicitud."""
-        # Obtener la firma del encabezado
+        """Valida la firma HMAC de una solicitud webhook de DocuSign."""
+        # Extraer firma de headers
         signature = request.headers.get('X-DocuSign-Signature-1')
         if not signature:
             return False
         
-        # Obtener el cuerpo de la solicitud
+        # Obtener cuerpo de la solicitud
         body = request.get_data()
         
-        # Calcular el HMAC-SHA256 del cuerpo
+        # Calcular HMAC-SHA256
         expected_hmac = hmac.new(
-            self.hmac_key,
+            self.hmac_key.encode(),
             body,
             hashlib.sha256
         ).digest()
         
-        # Comparar con la firma recibida (decodificada de base64)
+        # Comparación segura para prevenir timing attacks
         try:
             received_hmac = base64.b64decode(signature)
-            # Comparación segura (resistente a timing attacks)
             return hmac.compare_digest(expected_hmac, received_hmac)
-        except Exception as e:
-            current_app.logger.error(f"Error validando firma HMAC: {str(e)}")
+        except Exception:
             return False
 ```
 
-### Endpoint Webhook
+## Estructura de Datos en Webhooks
 
-```python
-@docusign_bp.route('/webhook', methods=['POST'])
-def docusign_webhook():
-    """
-    Procesa notificaciones webhook de DocuSign.
-    
-    La firma HMAC se verifica para garantizar que la solicitud proviene de DocuSign.
-    """
-    # Validar HMAC
-    validator = DocuSignHMACValidator(current_app.config['DOCUSIGN_HMAC_KEY'])
-    if not validator.validate_request(request):
-        current_app.logger.warning("Recibida solicitud webhook con firma HMAC inválida")
-        return jsonify({"error": "Firma inválida"}), 401
-    
-    # Procesar evento
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Datos JSON no válidos"}), 400
-        
-        # DocuSign debe proporcionar al menos estos datos
-        if 'event' not in data or 'envelopeId' not in data:
-            return jsonify({"error": "Datos incompletos"}), 400
-        
-        event_type = data['event']
-        envelope_id = data['envelopeId']
-        
-        # Registrar el evento recibido
-        current_app.logger.info(f"Webhook DocuSign recibido: {event_type} para envelope {envelope_id}")
-        
-        # Actualizar estado del documento en la base de datos
-        document = get_document_by_envelope(envelope_id)
-        if document:
-            # Mapeo de eventos DocuSign a estados internos
-            status_mapping = {
-                'envelope-sent': 'sent',
-                'envelope-delivered': 'delivered',
-                'envelope-completed': 'completed',
-                'envelope-declined': 'declined',
-                'envelope-voided': 'voided'
-            }
-            
-            # Actualizar estado si corresponde
-            new_status = status_mapping.get(event_type)
-            if new_status:
-                document.status = new_status
-                document.updated_at = datetime.utcnow()
-                db.session.commit()
-                
-                # Opcionalmente, notificar al usuario
-                notify_document_status_change(document)
-        else:
-            current_app.logger.warning(f"Recibido evento para envelope desconocido: {envelope_id}")
-        
-        return jsonify({"status": "success", "message": "Evento procesado correctamente"})
-        
-    except Exception as e:
-        current_app.logger.error(f"Error procesando webhook: {str(e)}")
-        return jsonify({"error": "Error interno", "details": str(e)}), 500
+### Envelope Completed
+
+```json
+{
+  "event": "envelope-completed",
+  "envelopeId": "123e4567-e89b-12d3-a456-426614174000",
+  "status": "completed",
+  "emailSubject": "Split Sheet para Proyecto X",
+  "sentDateTime": "2025-03-14T15:30:45.000Z",
+  "completedDateTime": "2025-03-15T10:22:01.000Z",
+  "recipients": [
+    {
+      "recipientId": "1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "status": "completed",
+      "completedDateTime": "2025-03-15T10:22:01.000Z"
+    }
+  ],
+  "customFields": {
+    "textCustomFields": [
+      {
+        "name": "projectId",
+        "value": "proj-123"
+      }
+    ]
+  }
+}
 ```
 
-## Pruebas y Depuración
+### Recipient Declined
 
-### Simulación de Webhooks Localmente
+```json
+{
+  "event": "recipient-declined",
+  "envelopeId": "123e4567-e89b-12d3-a456-426614174000",
+  "status": "declined",
+  "emailSubject": "Split Sheet para Proyecto X",
+  "sentDateTime": "2025-03-14T15:30:45.000Z",
+  "recipients": [
+    {
+      "recipientId": "1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "status": "declined",
+      "declinedDateTime": "2025-03-15T09:45:30.000Z",
+      "declinedReason": "No estoy de acuerdo con los términos"
+    }
+  ]
+}
+```
 
-Para desarrollar y probar localmente, puedes usar herramientas como [ngrok](https://ngrok.com/) para exponer tu servidor local a Internet:
+## Flujo de Procesamiento
+
+1. DocuSign envía una notificación cuando ocurre un evento
+2. El endpoint `/api/docusign/webhook` recibe la notificación
+3. Se valida la firma HMAC para garantizar autenticidad
+4. Se procesa el evento según su tipo:
+   - `envelope-completed`: Se actualiza el documento como completado
+   - `envelope-declined`: Se marca como rechazado
+   - Otros eventos: Se actualizan los estados correspondientes
+5. Se notifica al usuario del cambio de estado (opcional)
+
+## Pruebas y Verificación
+
+### Test Local con Webhook Simulado
+
+Para probar localmente sin tener que exponer un endpoint público:
+
+```python
+# Simular un webhook de DocuSign
+def simulate_docusign_webhook(envelope_id, status, hmac_key):
+    """Simula una notificación webhook de DocuSign."""
+    # Crear payload
+    payload = {
+        "event": f"envelope-{status}",
+        "envelopeId": envelope_id,
+        "status": status,
+        "emailSubject": "Test Split Sheet",
+        "sentDateTime": datetime.utcnow().isoformat(),
+        "completedDateTime": datetime.utcnow().isoformat()
+    }
+    
+    # Convertir a JSON
+    payload_json = json.dumps(payload)
+    
+    # Calcular firma HMAC
+    signature = hmac.new(
+        hmac_key.encode(),
+        payload_json.encode(),
+        hashlib.sha256
+    ).digest()
+    signature_b64 = base64.b64encode(signature).decode()
+    
+    # Crear headers
+    headers = {
+        'Content-Type': 'application/json',
+        'X-DocuSign-Signature-1': signature_b64
+    }
+    
+    # Enviar solicitud
+    response = requests.post(
+        'http://localhost:5000/api/docusign/webhook',
+        headers=headers,
+        data=payload_json
+    )
+    
+    return response
+```
+
+### Verificar Configuración con `test_webhook.py`
+
+Puede ejecutar el script `scripts/test_docusign_webhook.py` para probar el manejo de webhooks:
 
 ```bash
-# Iniciar ngrok en el puerto donde se ejecuta tu aplicación Flask
-ngrok http 5000
+python scripts/test_docusign_webhook.py
 ```
 
-Esto creará un túnel seguro a tu servidor local. Usa la URL proporcionada por ngrok como URL de webhook en DocuSign.
+## Solución de Problemas
 
-### Verificación Manual
+### Webhook No Recibido
 
-Para verificar que tu endpoint funciona correctamente, puedes enviar una solicitud POST con Postman o curl, asegurándote de incluir un encabezado `X-DocuSign-Signature-1` válido.
+1. Verifique que la URL configurada en DocuSign sea accesible públicamente
+2. Compruebe que la URL coincide exactamente con el endpoint de la API
+3. Revise los logs de DocuSign para ver si hay intentos de envío fallidos
+4. Asegúrese de que su servidor permite solicitudes POST a la ruta configurada
 
-### Logging para Depuración
+### Error de Validación HMAC
 
-Implementa logging detallado en el endpoint webhook para facilitar la depuración:
+1. Verifique que `DOCUSIGN_HMAC_KEY` coincide con el secreto configurado en DocuSign
+2. Compruebe que el body de la solicitud no se modifica antes de la validación
+3. Verifique que está utilizando el header correcto (`X-DocuSign-Signature-1`)
 
-```python
-@docusign_bp.route('/webhook', methods=['POST'])
-def docusign_webhook():
-    # Registrar encabezados para depuración
-    current_app.logger.debug(f"Encabezados recibidos: {dict(request.headers)}")
-    
-    # Registrar cuerpo raw para depuración
-    current_app.logger.debug(f"Cuerpo recibido: {request.get_data(as_text=True)[:200]}...")
-    
-    # Resto del código...
-```
+### Error en Procesamiento
 
-## Gestión de Estados de Documento
-
-### Estados de Documento
-
-| Estado DocuSign | Estado Interno | Descripción |
-|----------------|----------------|-------------|
-| envelope-created | draft | Envelope creado pero no enviado |
-| envelope-sent | sent | Envelope enviado a los firmantes |
-| envelope-delivered | delivered | Envelope entregado a los firmantes |
-| envelope-completed | completed | Todos los firmantes han completado la firma |
-| envelope-declined | declined | Al menos un firmante ha rechazado firmar |
-| envelope-voided | voided | El envelope ha sido anulado |
-
-### Actualización de UI
-
-Cuando se recibe un webhook, además de actualizar la base de datos, puede ser necesario actualizar la UI del usuario:
-
-1. **Notificaciones en tiempo real**: Implementar WebSockets o Server-Sent Events
-2. **Emails**: Enviar notificaciones por email cuando cambia el estado del documento
-3. **Panel de control**: Actualizar automáticamente el panel de control del usuario
-
-## Seguridad
-
-### Best Practices
-
-1. **Validación HMAC**: Siempre validar la firma HMAC para verificar que la solicitud proviene de DocuSign
-2. **HTTPS**: Asegurar que el endpoint webhook use HTTPS en producción
-3. **Idempotencia**: Asegurar que procesar el mismo evento varias veces no cause problemas
-4. **Timeout**: Responder a DocuSign dentro del límite de tiempo esperado (evitar operaciones largas durante el procesamiento)
-5. **Firewall**: Configurar reglas de firewall para aceptar solicitudes solo desde las IPs de DocuSign
-
-### Troubleshooting
-
-Si los webhooks no funcionan correctamente:
-
-1. Verificar configuración de URL webhook en DocuSign
-2. Confirmar que la clave HMAC es la misma en DocuSign y en el código
-3. Revisar logs para errores de validación HMAC
-4. Comprobar que el servidor sea accesible desde Internet
-5. Verificar que DocuSign pueda resolver el dominio y conectarse al puerto configurado
+1. Revise los logs del servidor para identificar errores específicos
+2. Verifique que el `envelopeId` existe en la base de datos
+3. Compruebe que el formato del webhook coincide con lo esperado
 
 ## Referencias
 
-- [Documentación oficial de DocuSign sobre Connect](https://developers.docusign.com/platform/webhooks/)
-- [Guía de seguridad para webhooks](https://developers.docusign.com/platform/webhooks/connect-hmac/)
+- [Documentación oficial de webhooks DocuSign](https://developers.docusign.com/platform/webhooks/)
+- [Guía de autenticación HMAC](https://developers.docusign.com/platform/webhooks/connect/hmac/)
+- [Lista de eventos de DocuSign Connect](https://developers.docusign.com/platform/webhooks/connect/events/)

@@ -240,7 +240,7 @@ handler = logging.handlers.RotatingFileHandler(
     backupCount=10
 )
 handler.setFormatter(logging.Formatter(
-    '%(asctime)s %(levelname)s: %(message)s '
+    '%(asctime)s %(levellevel)s: %(message)s '
     '[in %(pathname)s:%(lineno)d]'
 ))
 app.logger.addHandler(handler)
@@ -323,3 +323,92 @@ PRODUCTION_CONFIG = {
 - [Python Security Best Practices](https://python-security.readthedocs.io/)
 - [JWT Best Practices](https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/)
 - [OAuth 2.0 Security Best Current Practice](https://oauth.net/2/oauth-best-practice/)
+
+# Seguridad de la API
+
+## Medidas de Seguridad Implementadas
+
+### Autenticación y Autorización
+- **JWT (JSON Web Tokens)**: Tokens firmados con algoritmo HS256
+- **Blacklisting de tokens**: Implementado para logout y revocación
+- **Duración limitada**: Tokens de acceso con expiración de 1 hora
+- **Refresh tokens**: Con duración de 7 días, renovación segura
+
+### Rate Limiting
+- **Protección global**: Límites por defecto de 200 solicitudes por día y 50 por hora
+- **Límites específicos**:
+  - Autenticación: 5 por minuto, 20 por hora (previene ataques de fuerza bruta)
+  - Generación de PDF: 10 por minuto, 100 por hora (protege recursos intensivos)
+  - API general: 30 por minuto, 300 por hora (uso normal)
+  - DocuSign: 20 por minuto (evitar abusos en APIs externas)
+- **Headers informativos**: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+- **Exenciones**: IPs internas y admin exentas para mantenimiento y testing
+
+### Seguridad OAuth 2.0
+- **PKCE implementado**: Previene ataques de interceptación de código
+- **Validación de state**: Protección contra CSRF en flujos OAuth
+- **Validación de timestamp**: Expiración de code_verifier para prevenir replay attacks
+- **Validación HMAC**: Para webhooks DocuSign
+
+### Protección de Datos
+- **Encriptación de contraseñas**: Almacenadas con hash + salt usando Werkzeug
+- **Sanitización de inputs**: Prevención de inyección SQL y XSS
+- **Validación de datos**: Esquemas de validación con Marshmallow
+
+### Configuración de Encabezados HTTP
+- **Content-Security-Policy**: Restricciones para prevenir XSS
+- **X-Frame-Options**: Protección contra clickjacking
+- **X-Content-Type-Options**: Previene MIME-sniffing
+- **Strict-Transport-Security**: Fuerza HTTPS en producción
+
+## Implementación del Rate Limiting
+
+El rate limiting ha sido implementado utilizando Flask-Limiter con una estrategia de ventana fija. Esto protege la API contra:
+
+1. **Ataques de denegación de servicio (DoS)**: Limitando el número total de solicitudes
+2. **Ataques de fuerza bruta**: Restringiendo intentos de autenticación
+3. **Uso abusivo de recursos**: Limitando operaciones intensivas como generación de PDFs
+4. **Costos excesivos**: Controlando llamadas a servicios externos como DocuSign
+
+### Configuración
+
+```python
+# Configuración básica
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+    headers_enabled=True
+)
+
+# Aplicación en endpoints
+@app.route('/api/login', methods=['POST'])
+@limiter.limit("5 per minute")
+def login():
+    # ...
+```
+
+### Exemples de Errores
+
+Cuando se excede un límite de tasa, la API responde con HTTP 429 (Too Many Requests):
+
+```json
+{
+  "error": "Demasiadas solicitudes. Intente nuevamente en 58 segundos.",
+  "retry_after": 58
+}
+```
+
+### Monitoreo y Alertas
+
+El sistema registra intentos de exceder límites y puede configurarse para enviar alertas cuando:
+- Se detectan patrones de abuso sistemático
+- Un usuario o IP excede consistentemente los límites
+- Se sospecha un ataque coordinado
+
+## Recomendaciones para Clientes
+
+1. Implementar backoff exponencial para reintentos
+2. Almacenar en caché respuestas cuando sea posible
+3. Monitorear los headers X-RateLimit para ajustar comportamiento
+4. Consolidar múltiples operaciones en solicitudes por lotes cuando sea posible

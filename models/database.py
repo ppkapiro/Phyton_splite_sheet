@@ -5,6 +5,7 @@ import logging
 from contextlib import contextmanager
 from sqlalchemy.exc import SQLAlchemyError
 from pathlib import Path
+import os
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -34,7 +35,14 @@ def session_scope():
 def init_app(app):
     """Inicializa la base de datos y las migraciones con la aplicación."""
     db.init_app(app)
-    migrate.init_app(app, db)
+    
+    # Asegurar que el directorio de migraciones existe
+    migrations_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'migrations')
+    os.makedirs(migrations_dir, exist_ok=True)
+    
+    # Inicializar migraciones con directorio explícito
+    migrate.init_app(app, db, directory=migrations_dir)
+    
     return db
 
 # Importar modelos para evitar importación circular

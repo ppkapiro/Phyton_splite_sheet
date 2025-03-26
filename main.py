@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
 from config.rate_limiting import limiter  # Se importa el limiter
+from config.monitoring import start_monitoring_server
+from config.security import configure_security_headers, sanitize_input
 
 # Importar los blueprints necesarios
 from routes.api import bp as api_bp
@@ -16,7 +18,7 @@ from routes.api import pdf_bp
 from routes.protected import protected_bp
 from routes.docusign import docusign_bp
 
-def create_app():
+def create_app(test_config=None):
     """Crea y configura la aplicación Flask"""
     # Cargar variables de entorno
     load_dotenv()
@@ -56,7 +58,7 @@ def create_app():
         JWT_ACCESS_TOKEN_EXPIRES=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)),
         JWT_REFRESH_TOKEN_EXPIRES=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 604800)),
         FLASK_APP='main.py',  # Importante para las migraciones
-        MIGRATIONS_DIRECTORY=str(migrations_dir),  # Ruta explícita para migraciones
+        MIGRATIONS_DIRECTORY=os.path.join(os.path.dirname(__file__), 'migrations'),  # Ruta absoluta
         # Configuración unificada de sesión
         SESSION_TYPE='filesystem',
         SESSION_FILE_DIR=os.path.join(app.instance_path, 'flask_session'),
@@ -88,6 +90,9 @@ def create_app():
     # Inicializar Limiter
     limiter.init_app(app)
 
+    # Configurar headers de seguridad
+    configure_security_headers(app)
+
     # Registrar blueprints
     with app.app_context():
         from routes.base import bp as base_bp
@@ -117,6 +122,21 @@ def create_app():
         'API_VERSION': '1.0',
         'ENV': os.getenv('FLASK_ENV', 'development')
     })
+
+    if app.config.get("ENV") == "production":
+        start_monitoring_server(port=8000)  # Se exponen las métricas en el puerto 8000
+
+    @app.before_request
+    def validate_request_data():
+        """Validación y sanitización global de datos de entrada."""
+        if request.is_json:
+            try:
+                # Ya se ejecutará la sanitización en xss_protection
+                # Aquí solo validamos que el JSON sea válido
+                request.get_json()
+            except Exception as e:
+                app.logger.warning(f"JSON inválido recibido: {str(e)}")
+                return jsonify({"error": "Datos JSON inválidos"}), 400
 
     return app
 

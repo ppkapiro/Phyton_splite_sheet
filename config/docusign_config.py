@@ -180,3 +180,8 @@ def validate_docusign_config(app):
         logger.info("✓ Configuración de DocuSign validada correctamente")
         logger.debug(f"  - Integration Key: {app.config.get('DOCUSIGN_INTEGRATION_KEY')[:8]}...")
         logger.debug(f"  - Redirect URI: {app.config.get('DOCUSIGN_REDIRECT_URI')}")
+
+# Configuración por defecto para DocuSign
+DOCUSIGN_DEFAULT_CONFIG = {
+    'DOCUSIGN_HMAC_KEY': os.environ.get('DOCUSIGN_HMAC_KEY', 'default_test_hmac_key_12345'),
+}

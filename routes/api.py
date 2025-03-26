@@ -31,6 +31,7 @@ from .protected import protected_bp
 import re
 from models.user import User
 from config.rate_limiting import limiter  # Agregado para definir "limiter"
+from config.security import xss_protection, sanitize_input, log_security_event
 
 # Cargar variables de entorno
 load_dotenv()
@@ -39,6 +40,7 @@ bp = Blueprint('api', __name__)
 pdf_bp = protected_bp
 
 @bp.route('/register', methods=['POST'])
+@xss_protection
 def register():
     """
     Endpoint para registrar un nuevo usuario.
@@ -89,6 +91,11 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         
+        # Logging de evento de seguridad exitoso
+        log_security_event('user_registration', 
+                           {'username': data['username']}, 
+                           user_id=None)
+        
         # Retornar respuesta exitosa
         return jsonify({
             "message": "Usuario registrado exitosamente",
@@ -106,6 +113,7 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")  # Limitar a 5 login por minuto
+@xss_protection
 def login():
     """
     Endpoint para iniciar sesión de usuario.
@@ -137,6 +145,9 @@ def login():
         
         # Verificar si el usuario existe y la contraseña es correcta
         if not user or not user.check_password(data['password']):
+            log_security_event('failed_login_attempt', 
+                              {'username': data['username']}, 
+                              user_id=None)
             return jsonify({"error": "Credenciales inválidas"}), 401
         
         # Generar tokens JWT
@@ -148,6 +159,11 @@ def login():
             AuthService.register_token(access_token)
         except Exception as e:
             current_app.logger.warning(f"No se pudo registrar el token: {str(e)}")
+        
+        # Login exitoso, registrar evento
+        log_security_event('successful_login', 
+                          {'username': user.username}, 
+                          user_id=user.id)
         
         # Retornar respuesta exitosa con tokens
         return jsonify({
@@ -249,8 +265,10 @@ def api_status():
 # Nuevo endpoint para generar PDF
 @bp.route('/pdf/generate_pdf', methods=['POST'])
 @jwt_required()   # Se agrega protección JWT
+@xss_protection
 def generate_pdf():
     """Genera un PDF a partir de datos JSON proporcionados."""
+    current_user_id = get_jwt_identity()
     data = request.get_json(silent=True)
     if data is None:
          # Si falta encabezado de autorización, retornar 401; de lo contrario, 400 por datos faltantes.

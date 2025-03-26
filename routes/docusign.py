@@ -5,6 +5,12 @@ import time  # Añadir esta importación
 from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for, abort
 from werkzeug.exceptions import BadRequest
 from services.docusign_service import DocuSignService
+from config.security import xss_protection, log_security_event, is_secure_origin
+from flask_jwt_extended import jwt_required, get_jwt_identity
+import hmac
+import base64
+import hashlib
+from datetime import datetime
 
 # Crear el blueprint para DocuSign
 docusign_bp = Blueprint('docusign', __name__)
@@ -12,7 +18,39 @@ docusign_bp = Blueprint('docusign', __name__)
 # Configuración de logging
 logger = logging.getLogger(__name__)
 
+# Añadir clase para validación HMAC
+class DocuSignHMACValidator:
+    """Validador de firmas HMAC para webhooks de DocuSign."""
+    
+    def __init__(self, hmac_key):
+        self.hmac_key = hmac_key
+    
+    def validate_request(self, request):
+        """Valida la firma HMAC de una solicitud webhook de DocuSign."""
+        # Extraer firma de headers
+        signature = request.headers.get('X-DocuSign-Signature-1')
+        if not signature:
+            return False
+        
+        # Obtener cuerpo de la solicitud
+        body = request.get_data()
+        
+        # Calcular HMAC-SHA256
+        expected_hmac = hmac.new(
+            self.hmac_key.encode(),
+            body,
+            hashlib.sha256
+        ).digest()
+        
+        # Comparación segura para prevenir timing attacks
+        try:
+            received_hmac = base64.b64decode(signature)
+            return hmac.compare_digest(expected_hmac, received_hmac)
+        except Exception:
+            return False
+
 @docusign_bp.route('/auth', methods=['GET'])
+@jwt_required()
 def docusign_auth():
     """
     Inicia el flujo de autorización de DocuSign.
@@ -20,6 +58,13 @@ def docusign_auth():
     Este endpoint redirige al usuario a DocuSign para autorizar nuestra aplicación.
     Genera y almacena un valor 'state' para prevenir ataques CSRF.
     """
+    current_user_id = get_jwt_identity()
+    
+    # Logging del inicio de flujo OAuth
+    log_security_event('docusign_auth_init', 
+                      {'user_id': current_user_id}, 
+                      user_id=current_user_id)
+    
     try:
         # Verificación de configuración
         logger.info("Iniciando flujo DocuSign auth...")
@@ -173,6 +218,9 @@ def docusign_callback():
         # Validar el estado para prevenir ataques CSRF
         if state_received != expected_state:
             logger.error(f"Estado inválido en callback de DocuSign. Esperado: {expected_state[:5]}..., Recibido: {state_received[:5]}...")
+            log_security_event('docusign_invalid_state', 
+                          {'received_state': state_received}, 
+                          user_id=None)
             return jsonify({"error": "Estado inválido o manipulado", "details": "El valor recibido para state no coincide con el esperado"}), 400
         
         logger.info(f"State validado correctamente: {state_received[:5]}...")
@@ -293,8 +341,19 @@ def docusign_status():
         return jsonify({"authenticated": False})
 
 @docusign_bp.route('/send_for_signature', methods=['POST'])
+@jwt_required()
+@xss_protection
 def send_for_signature():
     """Envía un documento para firma usando DocuSign"""
+    current_user_id = get_jwt_identity()
+    
+    # Verificar conexión segura en producción
+    if not is_secure_origin() and current_app.config.get('ENV') == 'production':
+        log_security_event('insecure_signature_request', 
+                          {'user_id': current_user_id}, 
+                          user_id=current_user_id)
+        return jsonify({"error": "Esta operación requiere una conexión segura (HTTPS)"}), 403
+    
     try:
         # Validar datos de entrada
         data = request.get_json()
@@ -344,3 +403,41 @@ def send_for_signature():
             "error": "Error al procesar la solicitud",
             "details": str(e)
         }), 500
+
+@docusign_bp.route('/webhook', methods=['POST'])
+def docusign_webhook():
+    """Recibe y procesa webhooks de DocuSign."""
+    # Validar firma HMAC
+    hmac_key = current_app.config.get('DOCUSIGN_HMAC_KEY', os.getenv('DOCUSIGN_HMAC_KEY', ''))
+    validator = DocuSignHMACValidator(hmac_key)
+    is_valid = validator.validate_request(request)
+    
+    if not is_valid:
+        current_app.logger.warning("Webhook con firma inválida recibido")
+        return jsonify({"error": "Firma inválida"}), 401
+    
+    # Procesar eventos
+    data = request.get_json()
+    envelope_id = data.get('envelopeId')
+    status = data.get('status')
+    
+    current_app.logger.info(f"Webhook DocuSign recibido: envelope={envelope_id}, status={status}")
+    
+    # Actualizar estado del documento si existe
+    from models.database import db
+    from models import Document
+    
+    try:
+        document = Document.query.filter_by(envelope_id=envelope_id).first()
+        if document:
+            document.status = status
+            document.updated_at = datetime.utcnow()
+            db.session.commit()
+            current_app.logger.info(f"Documento actualizado: id={document.id}, status={status}")
+        else:
+            current_app.logger.warning(f"Webhook para envelope desconocido: {envelope_id}")
+    except Exception as e:
+        current_app.logger.error(f"Error procesando webhook: {str(e)}")
+    
+    # Siempre responder con éxito, incluso si no se encontró el documento
+    return jsonify({"status": "success"})
