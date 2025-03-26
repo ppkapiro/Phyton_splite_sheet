@@ -1,21 +1,884 @@
-2025-03-14 16:08:34 - INFO - main - Contexto base iniciado
-2025-03-14 16:08:34 - INFO - main - Usando base de datos de testing: C:\Users\pepec\Projects\Split_Sheet\tests\test.db
-2025-03-14 16:08:34 - INFO - main - Modelos registrados: ['User', 'Agreement', 'Document']
-2025-03-14 16:08:34 - INFO - main - Tablas creadas: ['user', 'participants', 'agreement', 'document']
-2025-03-14 16:08:34 - INFO - main - Test 'test_register' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
-2025-03-14 16:08:34 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
-2025-03-14 16:08:34 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - WARNING - main - Detectada transacción activa, intentando limpiar...
-2025-03-14 16:08:34 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
-2025-03-14 16:08:34 - DEBUG - main - Limpieza radical completada
-2025-03-14 16:08:34 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
-2025-03-14 16:08:34 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
-2025-03-14 16:08:34 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
-2025-03-14 16:08:34 - ERROR - main - Test 'test_register' tiene fuga de request context
-2025-03-14 16:08:34 - WARNING - main - Estado de contextos cambió durante limpieza: inicial={'app_contexts': 1, 'request_contexts': 1, 'base_app': <Flask 'main'>}, final={'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
-2025-03-14 16:08:34 - INFO - main - Base de datos de testing limpiada y eliminada
-2025-03-14 16:08:34 - INFO - main - Limpiando contexto base
+2025-03-26 15:23:38 - INFO - config.docusign_config - ✓ Configuración de DocuSign validada correctamente
+2025-03-26 15:23:38 - DEBUG - config.docusign_config -   - Integration Key: c9b495d2...
+2025-03-26 15:23:38 - DEBUG - config.docusign_config -   - Redirect URI: http://localhost:5000/api/docusign/callback
+2025-03-26 15:23:38 - INFO - main - Usando base de datos de testing: C:\Users\pepec\Projects\Split_Sheet\tests\test.db
+2025-03-26 15:23:38 - INFO - main - Modelos registrados: ['User', 'Agreement', 'Document']
+2025-03-26 15:23:38 - INFO - main - Tablas creadas: ['user', 'participants', 'agreement', 'document']
+2025-03-26 15:23:38 - INFO - main - Test 'test_register' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:38 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:38 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:38 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:38 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:38 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:38 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:38 - INFO - main - Base de datos de testing inicializada
+2025-03-26 15:23:38 - INFO - main - Test 'test_login_success' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:38 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:38 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:38 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:39 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_auth_flow' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_invalid_login_format' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_wrong_credentials' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_context_count' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - INFO - test_contexts - Contextos iniciales: 1
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - DEBUG - main - Contexto de request activo
+2025-03-26 15:23:39 - INFO - test_contexts - Contextos con request: 2
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - INFO - test_contexts - Contextos finales: 1
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_nested_contexts' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - INFO - test_contexts - Contextos iniciales: 1
+2025-03-26 15:23:39 - INFO - test_contexts - Con contexto app adicional: 1
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - DEBUG - main - Contexto de request activo
+2025-03-26 15:23:39 - INFO - test_contexts - Con request_context añadido: 2
+2025-03-26 15:23:39 - DEBUG - main - Contexto de aplicación activo
+2025-03-26 15:23:39 - INFO - test_contexts - Contextos finales: 1
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_db_session_context' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:39 - INFO - test_contexts - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - INFO - test_contexts - Ejecutando consulta SQL simple...
+2025-03-26 15:23:39 - INFO - test_contexts - Consulta ejecutada correctamente, resultado: [(1,)]
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_db_session_cleanup' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:39 - INFO - test_contexts - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - INFO - test_contexts - Ejecutando consulta SQL de prueba...
+2025-03-26 15:23:39 - INFO - test_contexts - Estado después de operación: {'is_active': True, 'in_transaction': True, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:39 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:39 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:39 - INFO - main - Test 'test_add_user' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:39 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:39 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:39 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_add_agreement' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_database_constraints' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_database_initialization' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_send_for_signature' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_send_for_signature_invalid_data' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_send_for_signature_service_error' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - routes.docusign - Error al enviar documento para firma: DocuSign API Error
+Traceback (most recent call last):
+  File "C:\Users\pepec\Projects\Split_Sheet\Backend_API_Flask_Python\routes\docusign.py", line 331, in send_for_signature
+    result = docusign_service.send_document_for_signature(
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1092, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1096, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1151, in _execute_mock_call
+    raise effect
+Exception: DocuSign API Error
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_generate_jwt' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_get_access_token_success' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_token_expiration' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_pkce_generation' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_auth_flow' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_success' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'test_state', 'format': 'json'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Enviando solicitud a https://account-d.docusign.com/oauth/token
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Client ID: test_int...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Redirect URI: http://localhost:5000/api/docusign/callback
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Code length: 9 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Verifier length: 13 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Respuesta de DocuSign: Status=200
+2025-03-26 15:23:40 - INFO - services.docusign_service - Token de acceso obtenido exitosamente
+2025-03-26 15:23:40 - INFO - routes.docusign - Token de DocuSign obtenido exitosamente
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_no_code' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {}
+2025-03-26 15:23:40 - ERROR - routes.docusign - No se recibió el parámetro 'code' en el callback de DocuSign
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_expired_verifier' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_auth_code', 'state': 'test_state'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - ERROR - main - Code verifier expirado. Edad: 2099.3883578777313 segundos, máximo: 300
+2025-03-26 15:23:40 - ERROR - routes.docusign - Code verifier inválido: Code verifier expirado (2099.3883578777313 segundos)
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_invalid_token_response' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'test_state'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Enviando solicitud a https://account-d.docusign.com/oauth/token
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Client ID: test_int...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Redirect URI: http://localhost:5000/api/docusign/callback
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Code length: 9 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Verifier length: 13 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Respuesta de DocuSign: Status=400
+2025-03-26 15:23:40 - ERROR - services.docusign_service - Error en respuesta DocuSign: <MagicMock name='post().text' id='1696486875536'>
+2025-03-26 15:23:40 - ERROR - services.docusign_service - Error HTTP en exchange_code_for_token: Error de token
+2025-03-26 15:23:40 - ERROR - routes.docusign - Error de validación en intercambio de tokens: Error en la comunicación con DocuSign: Error de token
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_hmac_validation_success' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_hmac_validation_invalid_signature' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_hmac_validation_integration' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_webhook' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_context_count' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_nested_contexts' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_db_session_context' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:40 - INFO - test_contexts - Ejecutando consulta SQL simple...
+2025-03-26 15:23:40 - INFO - test_contexts - Consulta ejecutada correctamente, resultado: [(1,)]
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_example' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_api_status' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_mock_auth_flow' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_complete_oauth_flow' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:40 - INFO - main - Iniciando OAuth flow - code_verifier: _gUaL-c6E5...
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'test_state', 'format': 'json'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - INFO - routes.docusign - Token de DocuSign obtenido exitosamente
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_exchange_code_for_token' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Enviando solicitud a https://account-d.docusign.com/oauth/token
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Client ID: test_key...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Redirect URI: http://localhost:5000/api/docusign/callback
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Code length: 9 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Verifier length: 13 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Respuesta de DocuSign: Status=200
+2025-03-26 15:23:40 - INFO - services.docusign_service - Token de acceso obtenido exitosamente
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_exchange_code_for_token_error' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Enviando solicitud a https://account-d.docusign.com/oauth/token
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Client ID: test_key...
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Redirect URI: http://localhost:5000/api/docusign/callback
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Code length: 12 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Verifier length: 13 chars
+2025-03-26 15:23:40 - DEBUG - services.docusign_service - Respuesta de DocuSign: Status=400
+2025-03-26 15:23:40 - ERROR - services.docusign_service - Error en respuesta DocuSign: <MagicMock name='post().text' id='1696487387968'>
+2025-03-26 15:23:40 - ERROR - services.docusign_service - Error HTTP en exchange_code_for_token: Error de token
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_auth_redirect' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:40 - INFO - main - Iniciando OAuth flow - code_verifier: FR95GXMx35...
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_auth_error_handling' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - ERROR - main - Error iniciando autenticación: Test error
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_success' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_auth_code', 'state': 'test_state'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - INFO - routes.docusign - Token de DocuSign obtenido exitosamente
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_exchange_error' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'test_state'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - ERROR - routes.docusign - Error no controlado en callback de DocuSign: Exchange error
+Traceback (most recent call last):
+  File "C:\Users\pepec\Projects\Split_Sheet\Backend_API_Flask_Python\routes\docusign.py", line 226, in docusign_callback
+    tokens = docusign.exchange_code_for_token(auth_code, code_verifier)
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1092, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1096, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "C:\Users\pepec\anaconda3\envs\Backend_API_Flask_Python\lib\unittest\mock.py", line 1151, in _execute_mock_call
+    raise effect
+Exception: Exchange error
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_invalid_verifier' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'test_state'}
+2025-03-26 15:23:40 - INFO - routes.docusign - State validado correctamente: test_...
+2025-03-26 15:23:40 - ERROR - routes.docusign - Code verifier inválido: Test error
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_docusign_callback_invalid_state' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - routes.docusign - Callback de DocuSign recibido. Parámetros: {'code': 'test_code', 'state': 'invalid_state'}
+2025-03-26 15:23:40 - ERROR - routes.docusign - Estado inválido en callback de DocuSign. Esperado: valid..., Recibido: inval...
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:40 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:40 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:40 - INFO - main - Test 'test_generate_pkce_pair' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:40 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:40 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:40 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_validate_verifier' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:41 - ERROR - main - Code verifier expirado. Edad: 310 segundos, máximo: 300
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_clear_session_verifier' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_validate_state' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_get_authorization_url' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - DEBUG - main - Par PKCE generado: verifier=43 chars, challenge=43 chars
+2025-03-26 15:23:41 - DEBUG - main - URL de autorización: https://test-server.docusign.com/oauth/auth?response_type=code&scope=test_scope&client_id=test_client_id&redirect_uri=https://test.com/callback&code_challenge=J9CPzIOfN78WnLu6gK1jKCT8VJOkoIbLGV6WSePZMKE&code_challenge_method=S256&state=nUFG0UiZ_ZRYMbRkmShdfg
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_generate_pdf' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:41 - DEBUG - main - Usuario creado: pdf_test_20250326192341_889
+2025-03-26 15:23:41 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_generate_pdf_invalid_data' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:41 - INFO - main - Usuario creado: pdf_invalid_20250326192341_847 (len=30)
+2025-03-26 15:23:41 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_generate_pdf_unauthorized' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_generate_pdf_invalid_token' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Test de token inválido completado exitosamente
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:41 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:41 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:41 - INFO - main - Test 'test_generate_pdf_valid_token' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:41 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:41 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:41 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:42 - INFO - main - Test con token válido completado exitosamente
+2025-03-26 15:23:42 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:42 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:42 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:42 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:42 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:42 - INFO - main - Test 'test_pdf_content_structure' iniciando con: {'app_contexts': 1, 'request_contexts': 0, 'base_app': <Flask 'main'>}
+2025-03-26 15:23:42 - INFO - main - Estado inicial de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:42 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado inicial SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - ERROR - main - Error en cleanup: 'scoped_session' object has no attribute 'transaction'
+2025-03-26 15:23:42 - DEBUG - main - Usuario creado para test de contenido: pdf_content_20250326192342_224
+2025-03-26 15:23:42 - DEBUG - main - Token registrado: eyJ0eXAiOi...
+2025-03-26 15:23:42 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:42 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:42 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado final SQLAlchemy: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - WARNING - main - Detectada transacción activa, intentando limpiar...
+2025-03-26 15:23:42 - DEBUG - main - Estado pre-cleanup: {'is_active': True, 'in_transaction': True, 'transaction_parent': False, 'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0}
+2025-03-26 15:23:42 - DEBUG - main - Limpieza radical completada
+2025-03-26 15:23:42 - DEBUG - main - Estado de sesión: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado post-limpieza: {'new_objects': 0, 'dirty_objects': 0, 'deleted_objects': 0, 'in_transaction': True, 'is_active': True, 'has_transaction': True}
+2025-03-26 15:23:42 - INFO - main - Estado final de sesión: {'is_active': True, 'in_transaction': True, 'has_changes': False}
+2025-03-26 15:23:42 - WARNING - main - Sesión activa o con cambios detectada, limpiando...
+2025-03-26 15:23:42 - INFO - main - Base de datos de testing limpiada
+2025-03-26 15:23:42 - INFO - main - Base de datos de testing limpiada y eliminada
+2025-03-26 15:23:42 - INFO - main - Limpiando contexto base

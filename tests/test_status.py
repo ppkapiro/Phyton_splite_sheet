@@ -109,13 +109,22 @@ def test_auth_flow(client, test_report):
         raise
 
 def test_api_status(client):
-    """Probar que la API responde correctamente"""
+    """Prueba el endpoint de estado de la API"""
+    # Realizar la solicitud GET a /api/status
     response = client.get('/api/status')
-    assert response.status_code == 200
+    
+    # Verificar código de estado y tipo de contenido
+    assert response.status_code == 200, f"Error {response.status_code}: {response.data}"
+    assert response.content_type == 'application/json'
+    
+    # Verificar estructura y valores de la respuesta
     data = json.loads(response.data)
-    assert 'status' in data
-    # Aceptar tanto 'online' como 'ok' como valores válidos para status
-    assert data['status'] in ['online', 'ok']
+    assert data["status"] == "ok"
+    assert "timestamp" in data
+    assert "version" in data
+    assert data["version"] == "1.0"
+    assert "environment" in data
+    assert data["environment"] in ["development", "testing", "production"]
 
 @pytest.mark.skip("Este test requiere una base de datos con tablas creadas")
 def test_auth_flow(client):

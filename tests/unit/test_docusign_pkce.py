@@ -30,10 +30,11 @@ def test_generate_pkce_pair(app):
         assert challenge == expected_challenge, "code_challenge no coincide con el esperado"
         
         # Verificar almacenamiento en sesión
-        assert 'code_verifier' in session, "code_verifier no se guardó en sesión"
+        assert 'docusign_code_verifier' in session, "docusign_code_verifier no se guardó en sesión"
         assert 'code_verifier_timestamp' in session, "timestamp no se guardó en sesión"
-        assert 'docusign_oauth_state' in session, "state no se guardó en sesión"
-        assert session['code_verifier'] == verifier, "code_verifier en sesión no coincide"
+        assert 'docusign_state' in session, "state no se guardó en sesión"
+        assert len(session['docusign_state']) > 0, "El state en sesión está vacío"
+        assert session['docusign_code_verifier'] == verifier, "code_verifier en sesión no coincide"
 
 def test_validate_verifier(app):
     """Prueba la validación de code_verifier."""
@@ -60,17 +61,17 @@ def test_clear_session_verifier(app):
     with app.test_request_context():
         # Configurar valores en sesión
         _, _ = DocuSignPKCE.generate_pkce_pair()
-        assert 'code_verifier' in session
+        assert 'docusign_code_verifier' in session
         assert 'code_verifier_timestamp' in session
-        assert 'docusign_oauth_state' in session
+        assert 'docusign_state' in session
         
         # Limpiar sesión
         DocuSignPKCE.clear_session_verifier()
         
         # Verificar que se limpiaron los valores
-        assert 'code_verifier' not in session
+        assert 'docusign_code_verifier' not in session
         assert 'code_verifier_timestamp' not in session
-        assert 'docusign_oauth_state' not in session
+        assert 'docusign_state' not in session
 
 def test_validate_state(app):
     """Prueba la validación de state para CSRF."""
@@ -82,7 +83,7 @@ def test_validate_state(app):
         
         # Caso 2: State válido
         _, _ = DocuSignPKCE.generate_pkce_pair()
-        stored_state = session['docusign_oauth_state']
+        stored_state = session['docusign_state']
         is_valid, error = DocuSignPKCE.validate_state(stored_state)
         assert is_valid
         assert error is None
@@ -119,4 +120,4 @@ def test_get_authorization_url(app):
         assert "redirect_uri=https://test.com/callback" in url
         assert f"code_challenge={challenge}" in url
         assert "code_challenge_method=S256" in url
-        assert f"state={session['docusign_oauth_state']}" in url
+        assert f"state={session['docusign_state']}" in url

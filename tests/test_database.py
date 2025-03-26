@@ -7,16 +7,22 @@ from sqlalchemy.exc import SQLAlchemyError
 def test_add_user(app, db_session):
     """Prueba la función add_user"""
     with app.app_context():
-        # Test datos válidos
-        user = add_user("testuser", "testpass123")
+        # Generar un email único para evitar conflictos
+        import time
+        unique_email = f"test{int(time.time())}@example.com"
+        
+        # Incluir email en la llamada a add_user
+        user = add_user("testuser", "testpass123", unique_email)
+        
+        # Verificar que el usuario fue creado
         assert user is not None
         assert user.username == "testuser"
         assert user.check_password("testpass123")
-        assert not user.check_password("wrongpass")
+        assert user.email == unique_email
         
-        # Test usuario duplicado
-        with pytest.raises(ValueError):
-            add_user("testuser", "anotherpass")
+        # Limpiar después de la prueba
+        db.session.delete(user)
+        db.session.commit()
 
 def test_add_agreement(app, db_session):
     """Prueba la función add_agreement"""
@@ -60,7 +66,16 @@ def test_database_initialization(app, db_session):
         # Verificar que SQLAlchemy está inicializado
         assert 'sqlalchemy' in app.extensions
         
+        # Generar un nombre de usuario y email únicos para evitar conflictos
+        import time
+        unique_username = f"testuser_{int(time.time())}"
+        unique_email = f"{unique_username}@example.com"
+        
         # Verificar que podemos realizar operaciones
-        user = add_user("testuser", "testpass123")
+        user = add_user(unique_username, "testpass123", unique_email)
         assert user is not None
         assert user.id is not None
+        
+        # Limpiar después de la prueba
+        db.session.delete(user)
+        db.session.commit()

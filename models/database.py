@@ -85,15 +85,39 @@ def reset_db():
         for table in reversed(db.metadata.sorted_tables):
             session.execute(table.delete())
 
-def add_user(username: str, password: str):
-    from .user import User
+def add_user(username, password, email=None):
+    """
+    Crea un nuevo usuario en la base de datos.
+    
+    Args:
+        username (str): Nombre de usuario único
+        password (str): Contraseña no encriptada
+        email (str, opcional): Email del usuario. Si no se proporciona, se genera uno basado en el username
+        
+    Returns:
+        User: El objeto usuario creado
+        
+    Raises:
+        ValueError: Si hay errores en la creación
+    """
     try:
-        user = User(username=username)
+        from models.user import User
+        
+        # Si no se proporciona email, generar uno basado en el username
+        if email is None:
+            email = f"{username}@example.com"
+        
+        # Crear instancia de usuario
+        user = User(username=username, email=email)
         user.set_password(password)
+        
+        # Agregar a la sesión y confirmar
         db.session.add(user)
         db.session.commit()
+        
         return user
-    except SQLAlchemyError as e:
+    except Exception as e:
+        # Revertir cambios en caso de error
         db.session.rollback()
         raise ValueError(f"Error al crear usuario: {str(e)}")
 
@@ -167,5 +191,55 @@ def verify_migrations():
                 
     except Exception as e:
         return False, f"Error verificando migraciones: {str(e)}"
+
+def force_transaction_cleanup(session):
+    """Helper mejorado para forzar limpieza de transacciones activas."""
+    try:
+        # 1. Intentar rollback si hay una transacción activa
+        if hasattr(session, 'transaction') and session.transaction and getattr(session.transaction, 'is_active', False):
+            try:
+                session.rollback()
+            except Exception as e:
+                if current_app:
+                    current_app.logger.warning(f"Error en rollback: {str(e)}")
+        
+        # 2. Cerrar sesión
+        try:
+            if hasattr(session, 'close'):
+                session.close()
+        except Exception as e:
+            if current_app:
+                current_app.logger.warning(f"Error cerrando sesión: {str(e)}")
+        
+        # 3. Remover sesión
+        try:
+            if hasattr(db, 'session') and hasattr(db.session, 'remove'):
+                db.session.remove()
+        except Exception as e:
+            if current_app:
+                current_app.logger.warning(f"Error en session.remove(): {str(e)}")
+        
+        # 4. Limpiar conexiones
+        try:
+            if hasattr(db, 'engine') and hasattr(db.engine, 'dispose'):
+                db.engine.dispose()
+        except Exception as e:
+            if current_app:
+                current_app.logger.warning(f"Error en engine.dispose(): {str(e)}")
+        
+        # 5. Intentar restaurar una sesión limpia
+        try:
+            if session and hasattr(session, 'transaction') and session.transaction and getattr(session.transaction, 'is_active', False):
+                if current_app:
+                    current_app.logger.warning("Transacción persistente detectada, intentando recrear la sesión")
+                db.session = db.create_scoped_session()
+                session = db.session()
+        except Exception as e:
+            if current_app:
+                current_app.logger.error(f"Error recreando sesión: {str(e)}")
+    
+    except Exception as e:
+        if current_app:
+            current_app.logger.error(f"Error en force_transaction_cleanup: {str(e)}")
 
 __all__ = ['db', 'init_app', 'session_scope', 'create_tables', 'drop_tables']

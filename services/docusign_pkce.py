@@ -12,9 +12,9 @@ class DocuSignPKCE:
     Implementa la generación del par PKCE y manejo de la sesión.
     """
     # Constantes para configuración
-    CODE_VERIFIER_KEY = 'code_verifier'
+    CODE_VERIFIER_KEY = 'docusign_code_verifier'  # Estandarizar nombre
     CODE_VERIFIER_TIMESTAMP_KEY = 'code_verifier_timestamp'
-    STATE_KEY = 'docusign_oauth_state'
+    STATE_KEY = 'docusign_state'  # Usar un nombre estandarizado
     VERIFIER_EXPIRATION = 300  # 5 minutos en segundos
 
     @classmethod
@@ -61,21 +61,31 @@ class DocuSignPKCE:
         Returns:
             tuple: (is_valid: bool, error_message: str or None)
         """
-        # Verificar que existe code_verifier
-        if cls.CODE_VERIFIER_KEY not in session:
-            return False, "No hay code_verifier en sesión"
-        
-        # Verificar que existe timestamp
-        if cls.CODE_VERIFIER_TIMESTAMP_KEY not in session:
-            return False, "No hay timestamp para code_verifier"
-        
-        # Verificar que no haya expirado
-        timestamp = session.get(cls.CODE_VERIFIER_TIMESTAMP_KEY)
-        now = int(time.time())
-        if now - timestamp > cls.VERIFIER_EXPIRATION:
-            return False, f"Code verifier expirado ({now - timestamp} segundos)"
-        
-        return True, None
+        try:
+            # 1. Verificar que existe code_verifier
+            verifier = session.get(cls.CODE_VERIFIER_KEY)
+            if not verifier:
+                return False, "No hay code_verifier en sesión"
+            
+            # 2. Verificar que existe timestamp
+            timestamp = session.get(cls.CODE_VERIFIER_TIMESTAMP_KEY)
+            if not timestamp:
+                return False, "No hay timestamp para code_verifier"
+            
+            # 3. Verificar que no haya expirado
+            now = int(time.time())
+            age = now - timestamp
+            if age > cls.VERIFIER_EXPIRATION:
+                current_app.logger.error(f"Code verifier expirado. Edad: {age} segundos, máximo: {cls.VERIFIER_EXPIRATION}")
+                session.pop(cls.CODE_VERIFIER_KEY, None)
+                session.pop(cls.CODE_VERIFIER_TIMESTAMP_KEY, None)
+                return False, f"Code verifier expirado ({age} segundos)"
+            
+            return True, None
+            
+        except Exception as e:
+            current_app.logger.error(f"Error validando code_verifier: {str(e)}")
+            return False, f"Error de validación: {str(e)}"
     
     @classmethod
     def validate_state(cls, received_state):

@@ -2,6 +2,9 @@ import os
 import logging
 from flask import current_app
 
+# Definición del logger
+logger = logging.getLogger(__name__)
+
 # Constantes de validación
 EXPECTED_REDIRECT_URI = "http://localhost:5000/api/docusign/callback"
 
@@ -108,5 +111,72 @@ def load_docusign_config(app):
     return app.config
 
 def init_app(app):
-    """Inicializa configuración DocuSign en la app."""
-    return load_docusign_config(app)
+    """
+    Inicializa la configuración de DocuSign en la aplicación Flask.
+    
+    Args:
+        app (Flask): La aplicación Flask
+    """
+    # Cargar variables de DocuSign desde el entorno
+    app.config.update(
+        # Valores críticos para la autenticación
+        DOCUSIGN_INTEGRATION_KEY=os.getenv('DOCUSIGN_INTEGRATION_KEY'),
+        DOCUSIGN_CLIENT_SECRET=os.getenv('CLIENT_SECRET'),  # Leer CLIENT_SECRET desde .env
+        DOCUSIGN_ACCOUNT_ID=os.getenv('DOCUSIGN_ACCOUNT_ID'),
+        DOCUSIGN_USER_ID=os.getenv('DOCUSIGN_USER_ID'),
+        
+        # URLs y endpoints
+        DOCUSIGN_AUTH_SERVER=os.getenv('DOCUSIGN_AUTH_SERVER', 'account-d.docusign.com'),
+        DOCUSIGN_BASE_URL=os.getenv('DOCUSIGN_BASE_URL', 'https://demo.docusign.net/restapi'),
+        DOCUSIGN_REDIRECT_URI=os.getenv('DOCUSIGN_REDIRECT_URI', 'http://localhost:5000/api/docusign/callback'),
+        
+        # Configuración adicional
+        DOCUSIGN_PRIVATE_KEY_PATH=os.getenv('DOCUSIGN_PRIVATE_KEY_PATH', 'private.key'),
+        DOCUSIGN_WEBHOOK_SECRET=os.getenv('DOCUSIGN_WEBHOOK_SECRET'),
+        DOCUSIGN_HMAC_KEY=os.getenv('DOCUSIGN_HMAC_KEY'),
+        
+        # Alcance y duración de tokens
+        DOCUSIGN_JWT_SCOPE=os.getenv('DOCUSIGN_JWT_SCOPE', 'signature impersonation'),
+        DOCUSIGN_JWT_LIFETIME=int(os.getenv('DOCUSIGN_JWT_LIFETIME', 3600)),
+        DOCUSIGN_CACHE_TOKEN=os.getenv('DOCUSIGN_CACHE_TOKEN', 'True').lower() in ('true', '1', 't'),
+        DOCUSIGN_CACHE_DURATION=int(os.getenv('DOCUSIGN_CACHE_DURATION', 3600))
+    )
+    
+    # Validar configuración crítica
+    validate_docusign_config(app)
+    
+def validate_docusign_config(app):
+    """
+    Valida que la configuración de DocuSign esté completa.
+    
+    Args:
+        app (Flask): La aplicación Flask
+    """
+    # Variables críticas para la integración
+    critical_vars = [
+        ('DOCUSIGN_INTEGRATION_KEY', 'Integration Key (Client ID)'),
+        ('DOCUSIGN_CLIENT_SECRET', 'Client Secret'),
+        ('DOCUSIGN_ACCOUNT_ID', 'Account ID'),
+        ('DOCUSIGN_REDIRECT_URI', 'Redirect URI')
+    ]
+    
+    missing = []
+    insecure = []
+    
+    for var_name, description in critical_vars:
+        if not app.config.get(var_name):
+            missing.append(f"{description} ({var_name})")
+        elif var_name in ['DOCUSIGN_CLIENT_SECRET'] and app.config[var_name] in ['your_client_secret', 'client_secret_here']:
+            insecure.append(f"{description} ({var_name}) contiene un valor placeholder")
+    
+    if missing:
+        logger.warning(f"⚠️ Configuración de DocuSign incompleta. Faltan las siguientes variables: {', '.join(missing)}")
+        
+    if insecure:
+        logger.warning(f"⚠️ Configuración de DocuSign insegura. Las siguientes variables contienen valores placeholder: {', '.join(insecure)}")
+
+    # Log informativo sobre la configuración
+    if not missing and not insecure:
+        logger.info("✓ Configuración de DocuSign validada correctamente")
+        logger.debug(f"  - Integration Key: {app.config.get('DOCUSIGN_INTEGRATION_KEY')[:8]}...")
+        logger.debug(f"  - Redirect URI: {app.config.get('DOCUSIGN_REDIRECT_URI')}")

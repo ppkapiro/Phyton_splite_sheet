@@ -2,6 +2,8 @@ import pytest
 import json
 import os
 import sys
+import time
+import random
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, current_app, _app_ctx_stack, _request_ctx_stack, has_app_context, has_request_context
@@ -33,22 +35,24 @@ def initialize_reports():  # ⚠️ Se empuja el contexto pero nunca se hace pop
     reports_dir.mkdir(exist_ok=True)
     return reports_dir
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session")  # Cambiar scope a session
 def app():
-    """Crear y configurar la aplicación Flask para testing"""
+    """Fixture de aplicación base para pruebas."""
     app = create_app()
-    
-    # Configuración específica para tests
     app.config.update({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'JWT_SECRET_KEY': 'test_key'
+        'DOCUSIGN_INTEGRATION_KEY': 'test_integration_key',
+        'DOCUSIGN_CLIENT_SECRET': 'test_client_secret',
+        'DOCUSIGN_AUTH_SERVER': 'account-d.docusign.com',
+        'DOCUSIGN_REDIRECT_URI': 'http://localhost:5000/api/docusign/callback'
     })
-    
-    # Crear estructura de directorios necesaria
-    (Path(app.root_path).parent / 'tests' / 'output').mkdir(parents=True, exist_ok=True)
-    
     return app
+
+@pytest.fixture(scope="function")
+def app_context(app):
+    """Fixture que provee un contexto de aplicación fresco para cada test."""
+    with app.app_context():
+        yield app
 
 @pytest.fixture(scope="session")
 def test_db(app):
@@ -56,21 +60,47 @@ def test_db(app):
     Fixture para inicializar y limpiar la base de datos durante la sesión de tests.
     Debe ejecutarse antes que otros fixtures que dependan de la base de datos.
     """
-    with app.app_context():
+    # El test_db debe trabajar con un contexto de app seguro
+    ctx = None
+    if not has_app_context():
+        ctx = app.app_context()
+        ctx.push()
+    
+    try:
         # Limpiar cualquier estado previo
         db.session.remove()
         db.drop_all()
         
         # Crear tablas frescas
         db.create_all()
-        current_app.logger.info("Base de datos de testing inicializada")
+        app.logger.info("Base de datos de testing inicializada")
         
         yield db
-        
+    finally:
         # Limpiar después de todos los tests
-        db.session.remove()
-        db.drop_all()
-        current_app.logger.info("Base de datos de testing limpiada")
+        try:
+            # Asegurarse de que estamos en un contexto de app
+            if not has_app_context() and ctx is None:
+                temp_ctx = app.app_context()
+                temp_ctx.push()
+                clean_db = True
+            else:
+                clean_db = True
+                
+            if clean_db:
+                db.session.remove()
+                # Intentar drop_all solo si estamos en un contexto válido
+                try:
+                    db.drop_all()
+                    app.logger.info("Base de datos de testing limpiada")
+                except Exception as e:
+                    app.logger.error(f"Error al limpiar la base de datos: {str(e)}")
+                
+            # Quitar solo el contexto temporal si lo creamos aquí
+            if not has_app_context() and ctx is None and 'temp_ctx' in locals():
+                temp_ctx.pop()
+        except Exception as e:
+            app.logger.error(f"Error durante la limpieza final de test_db: {str(e)}")
 
 @pytest.fixture(scope="function")
 def reset_database(app):
@@ -128,51 +158,35 @@ def get_session_info(session):
     }
 
 def force_transaction_cleanup(session):
-    """Helper para forzar limpieza de transacciones activas"""
+    """Helper mejorado para forzar limpieza de transacciones activas"""
     try:
-        state = get_session_info(session)
+        # Guardar diagnóstico inicial
+        state = get_session_info(session) if session else None
         current_app.logger.debug(f"Estado pre-cleanup: {state}")
 
-        # Solución más radical para transacciones persistentes
+        # 1. Primero intentar usar session.close() y rollback()
         try:
-            # 1. Intentar rollback primero
-            session.rollback()
-            
-            # 2. Cerrar la sesión
-            session.close()
-            
-            # 3. Eliminar sesión
+            if session and session.is_active:
+                if hasattr(session, 'transaction') and session.transaction and hasattr(session.transaction, 'is_active'):
+                    if session.transaction.is_active:
+                        session.rollback()
+                session.close()
+        except Exception as e:
+            current_app.logger.error(f"Error en limpieza básica: {e}")
+
+        # 2. Luego force remove desde db.session
+        try:
             db.session.remove()
+        except Exception as e:
+            current_app.logger.error(f"Error al remover sesión: {e}")
             
-            # 4. Reiniciar engine completamente
+        # 3. Finalmente, dispose engine
+        try:
             if hasattr(db, 'engine'):
                 db.engine.dispose()
-                
-            # 5. Crear y cerrar una conexión fresca para resetear
-            try:
-                if hasattr(db, 'engine'):
-                    conn = db.engine.raw_connection()
-                    conn.close()
-            except:
-                pass
-                
         except Exception as e:
-            current_app.logger.error(f"Error en proceso de limpieza: {e}")
+            current_app.logger.error(f"Error al dispose engine: {e}")
             
-        # Último recurso - reiniciar el objeto _session
-        try:
-            # Eliminar sesión actual
-            if hasattr(db, '_session'):
-                delattr(db, '_session')
-                
-            # Crear una nueva sesión limpia
-            if hasattr(db, 'session'):
-                session = db.session()
-                session.close()
-                db.session.remove()
-        except:
-            pass
-                
         current_app.logger.debug("Limpieza radical completada")
         
     except Exception as e:
@@ -198,41 +212,19 @@ def diagnose_transaction(session):
         return {"error": str(e)}
 
 @pytest.fixture(scope="function")
-def db_session(app, base_app_context, initialize_database):  # Agregar dependencia
-    """Fixture para manejo de sesiones con SQLAlchemy."""
+def db_session(app, test_db):
+    """Fixture mejorado para manejo de sesiones SQLAlchemy"""
     with app.app_context():
         # Limpieza previa
-        cleanup_sqlalchemy()
-        
-        # Recrear tablas
-        db.drop_all()
-        db.create_all()
-        
-        # Crear sesión fresca
-        db.session.remove()
-        if hasattr(db, '_session'):
-            delattr(db, '_session')
+        force_transaction_cleanup(db.session)
         
         session = db.session()
         session.expire_on_commit = False
         
-        # Diagnóstico detallado
-        state = get_session_info(session)
-        diagnose_transaction(session)
-        
-        # Advertir sobre transacciones pre-existentes
-        if state['in_transaction']:
-            current_app.logger.warning(
-                "NOTA: Sesión comenzó con una transacción activa. "
-                "Los tests se ejecutarán dentro de esta transacción existente."
-            )
-        
         try:
             yield session
         finally:
-            # Limpieza final siempre preservando la integridad de los datos
             force_transaction_cleanup(session)
-            current_app.logger.info("Sesión finalizada correctamente")
 
 @pytest.fixture(scope="function")
 def client(app):
@@ -303,9 +295,10 @@ def pytest_runtest_makereport(item, call):
 def auth_tokens(client, app):
     """Fixture mejorado para tokens JWT con diagnóstico detallado"""
     with app.app_context():
-        # Crear usuario de prueba con password que cumple los requisitos
+        # Crear usuario de prueba con un nombre único para evitar conflictos UNIQUE
         from models.user import User
-        user = User(username='test_user')
+        unique_username = f"test_user_{int(time.time())}_{random.randint(1000, 9999)}"
+        user = User(username=unique_username, email=f"{unique_username}@example.com")
         valid_password = 'TestPass123'  # Cumple todos los requisitos
         user.set_password(valid_password)
         db.session.add(user)
@@ -313,7 +306,7 @@ def auth_tokens(client, app):
         
         # Login para obtener tokens con password válido
         login_data = {
-            'username': 'test_user',
+            'username': unique_username,
             'password': valid_password
         }
         
@@ -429,84 +422,137 @@ def get_active_contexts():
 def cleanup_contexts():
     """
     Limpia contextos activos preservando el contexto base.
-    Compatible con Flask 2.x+
+    Compatible con Flask 2.x+.
     """
     try:
-        # 1. Obtener estado inicial
+        # Obtener el estado inicial
         initial_state = get_active_contexts()
         base_app = initial_state['base_app']
-        
-        # 2. Limpiar request contexts usando módulos correctos
+
+        # Limpiar request contexts
         while has_request_context():
             try:
-                # Acceder correctamente a los stacks globales, no desde el objeto Flask
                 from flask import _request_ctx_stack
                 _request_ctx_stack.pop()
             except Exception as e:
                 current_app.logger.error(f"Error limpiando request context: {str(e)}")
                 break
-        
-        # 3. Limpiar app contexts adicionales
+
+        # Limpiar app contexts adicionales
         while has_app_context():
             try:
                 from flask import _app_ctx_stack
                 ctx = _app_ctx_stack.top
-                if ctx is not None:
-                    current_app_obj = current_app._get_current_object()
-                    
-                    # No eliminar el contexto base
-                    if current_app_obj != base_app:
-                        ctx.pop()
-                    else:
-                        break
+                if ctx and ctx.app is not base_app:
+                    ctx.pop()
+                else:
+                    break
             except Exception as e:
                 current_app.logger.error(f"Error limpiando app context: {str(e)}")
                 break
-        
-        # 4. Verificar estado final
+
+        # Verificar el estado final
         final_state = get_active_contexts()
         if final_state != initial_state:
             current_app.logger.warning(
-                "Estado de contextos cambió durante limpieza: "
+                f"Estado de contextos cambió durante limpieza: "
                 f"inicial={initial_state}, final={final_state}"
             )
-            
     except Exception as e:
         current_app.logger.error(f"Error en cleanup_contexts: {str(e)}")
         raise
 
+def _cleanup_all_contexts():
+    """Limpia todos los contextos activos sin verificación."""
+    try:
+        # Limpiar request contexts
+        while has_request_context():
+            try:
+                _request_ctx_stack.pop()
+            except Exception as e:
+                current_app.logger.error(f"Error limpiando request context: {str(e)}")
+                break
+
+        # Limpiar app contexts
+        while has_app_context():
+            try:
+                _app_ctx_stack.pop()
+            except Exception as e:
+                current_app.logger.error(f"Error limpiando app context: {str(e)}")
+                break
+    except Exception as e:
+        current_app.logger.error(f"Error en _cleanup_all_contexts: {str(e)}")
+
+def _emergency_context_cleanup():
+    """Limpieza de emergencia que reinicia las pilas de contexto de manera compatible con diferentes versiones de Flask."""
+    try:
+        # Reiniciar pilas de contexto de manera segura
+        # En lugar de acceder directamente a las estructuras internas
+        while has_request_context():
+            try:
+                _request_ctx_stack.pop()
+            except Exception as e:
+                current_app.logger.error(f"Error al hacer pop de request_ctx: {str(e)}")
+                break
+        
+        while has_app_context():
+            try:
+                _app_ctx_stack.pop()
+            except Exception as e:
+                current_app.logger.error(f"Error al hacer pop de app_ctx: {str(e)}")
+                break
+                
+        current_app.logger.warning("Limpieza de emergencia completada")
+    except Exception as e:
+        current_app.logger.error(f"Error en limpieza de emergencia: {str(e)}")
+
 @pytest.fixture(scope="session", autouse=True)
 def base_app_context(app):
     """
-    Fixture principal que mantiene un contexto base durante tests.
-    Compatible con Flask 2.x+
+    Fixture principal que mantiene un contexto base durante los tests.
+    Implementación segura que evita errores de 'Popped wrong app context'.
     """
-    # 1. Limpiar cualquier contexto residual
-    cleanup_contexts()
-    
-    # 2. Crear nuevo contexto base
+    # Asegurarse de que no hay contextos activos antes de empezar
+    while has_app_context():
+        try:
+            _app_ctx_stack.pop()
+        except Exception as e:
+            app.logger.error(f"Error limpiando contexto inicial: {str(e)}")
+            break
+            
+    # Crear y empujar un nuevo contexto
     ctx = app.app_context()
     ctx.push()
     
-    # 3. Verificar estado inicial
-    assert has_app_context(), "Contexto base no activado"
-    current_app.logger.info("Contexto base iniciado")
+    # Guardar una referencia directa al contexto para usarla después
+    app._base_test_ctx = ctx
     
     try:
         yield ctx
     finally:
-        current_app.logger.info("Limpiando contexto base")
+        app.logger.info("Limpiando contexto base")
+        # Verificar si podemos hacer pop seguro del contexto
         try:
-            # 4. Asegurar que estamos en el contexto correcto
-            if has_app_context() and current_app._get_current_object() == app:
-                ctx.pop()
-                
-            # 5. Limpiar cualquier contexto residual
-            cleanup_contexts()
-            
+            if has_app_context():
+                current_ctx = _app_ctx_stack.top
+                if current_ctx is ctx:
+                    # Solo hacemos pop si el contexto actual es el que creamos
+                    ctx.pop()
+                else:
+                    app.logger.warning(
+                        f"No se puede hacer pop del contexto correcto. "
+                        f"Limpiando todos los contextos por seguridad."
+                    )
+                    # Limpiar todos los contextos sin verificación
+                    while has_app_context():
+                        try:
+                            _app_ctx_stack.pop()
+                        except:
+                            break
+            else:
+                app.logger.warning("No hay contextos activos durante la limpieza final")
         except Exception as e:
-            current_app.logger.error(f"Error en limpieza final: {str(e)}")
-            raise
+            app.logger.error(f"Error en limpieza final: {str(e)}")
 
 @pytest.fixture(autouse=True)
 def verify_context_state(request):
@@ -704,35 +750,41 @@ def initialize_database(app):
     if test_db_path.exists():
         test_db_path.unlink()
     
+    # Configurar base de datos SQLite persistente
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{test_db_path}'
+    app.logger.info(f"Usando base de datos de testing: {test_db_path}")
+    
+    # Verificar modelos registrados
+    models = {
+        'User': User,
+        'Agreement': Agreement,
+        'Document': Document
+    }
+    app.logger.info(f"Modelos registrados: {list(models.keys())}")
+    
+    # Inicializar base de datos sin crear un nuevo contexto
     with app.app_context():
-        # Configurar base de datos SQLite persistente
-        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{test_db_path}'
-        current_app.logger.info(f"Usando base de datos de testing: {test_db_path}")
-        
-        # Verificar modelos registrados
-        models = {
-            'User': User,
-            'Agreement': Agreement,
-            'Document': Document
-        }
-        current_app.logger.info(f"Modelos registrados: {list(models.keys())}")
-        
         # Limpiar cualquier estado previo
         db.session.remove()
         db.drop_all()
         
         # Crear tablas frescas
         db.create_all()
-        current_app.logger.info(f"Tablas creadas: {list(db.metadata.tables.keys())}")
-        
-        yield
-        
-        # Limpiar después de todos los tests
+        app.logger.info(f"Tablas creadas: {list(db.metadata.tables.keys())}")
+    
+    yield
+    
+    # Limpiar después de todos los tests, también sin crear un nuevo contexto
+    with app.app_context():
         db.session.remove()
         db.drop_all()
         
         # Eliminar el archivo de base de datos
         if test_db_path.exists():
-            test_db_path.unlink()
-        
-        current_app.logger.info("Base de datos de testing limpiada y eliminada")
+            try:
+                test_db_path.unlink()
+                app.logger.info("Base de datos de testing limpiada y eliminada")
+            except PermissionError:
+                app.logger.warning(f"No se pudo eliminar {test_db_path}: PermissionError")
+            except Exception as e:
+                app.logger.warning(f"No se pudo eliminar {test_db_path}: {e}")
